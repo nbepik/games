@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ascapha bypass</title>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
 <style>
   :root {
     --bg-color: #07040d;
@@ -16,13 +20,7 @@
     --neon-shadow: rgba(168, 85, 247, 0.4);
     --strong-glow: rgba(192, 132, 252, 0.8);
   }
-
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     min-height: 100vh;
     background: radial-gradient(circle at top center, #1e0533 0%, var(--bg-color) 70%);
@@ -33,19 +31,13 @@
     justify-content: center;
     align-items: center;
   }
-
-  /* --- AUTHENTICATION OVERLAY --- */
   #authOverlay {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: rgba(7, 4, 13, 0.95);
     backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; justify-content: center; align-items: center;
     z-index: 1000;
   }
-
   .auth-box {
     background: var(--card-bg);
     border: 2px solid var(--border-glow);
@@ -53,152 +45,187 @@
     border-radius: 20px;
     box-shadow: 0 0 25px var(--neon-shadow), inset 0 0 15px rgba(168, 85, 247, 0.2);
     text-align: center;
-    max-width: 360px;
-    width: 90%;
+    max-width: 360px; width: 90%;
   }
-
-  .auth-box h2 {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
-    text-shadow: 0 0 10px var(--border-glow);
-  }
-
-  .auth-box p {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-  }
-
+  .auth-box h2 { font-size: 1.8rem; margin-bottom: 8px; text-shadow: 0 0 10px var(--border-glow); }
+  .auth-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
   .auth-input {
-    width: 100%;
-    padding: 12px 15px;
-    border-radius: 10px;
-    border: 1px solid var(--border-glow);
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    font-size: 1rem;
-    outline: none;
-    text-align: center;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-    transition: 0.3s;
+    width: 100%; padding: 12px 15px; border-radius: 10px;
+    border: 1px solid var(--border-glow); background: rgba(0,0,0,0.6);
+    color: #fff; font-size: 1rem; outline: none; text-align: center;
+    letter-spacing: 2px; margin-bottom: 15px; transition: 0.3s;
   }
-
-  .auth-input:focus {
-    border-color: var(--border-active);
-    box-shadow: 0 0 15px var(--strong-glow);
-  }
-
+  .auth-input:focus { border-color: var(--border-active); box-shadow: 0 0 15px var(--strong-glow); }
   .auth-btn {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
+    width: 100%; padding: 12px; border-radius: 10px; border: none;
     background: linear-gradient(135deg, #7e22ce, #a855f7);
-    color: #fff;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 15px var(--neon-shadow);
-    transition: 0.3s;
+    color: #fff; font-size: 1rem; font-weight: bold; cursor: pointer;
+    box-shadow: 0 0 15px var(--neon-shadow); transition: 0.3s;
   }
+  .auth-btn:hover { box-shadow: 0 0 25px var(--strong-glow); transform: translateY(-2px); }
+  #errorMsg { color: #ff4d4d; font-size: 0.85rem; margin-top: 10px; display: none; }
 
-  .auth-btn:hover {
-    box-shadow: 0 0 25px var(--strong-glow);
-    transform: translateY(-2px);
-  }
-
-  #errorMsg {
-    color: #ff4d4d;
-    font-size: 0.85rem;
-    margin-top: 10px;
-    display: none;
-  }
-
-  /* --- MAIN CONTENT CONTAINER --- */
-  #appContent {
-    display: none;
-    width: 100%;
-    max-width: 1300px;
-    padding: 40px 20px;
-  }
-
-  header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-
+  #appContent { display: none; width: 100%; max-width: 1300px; padding: 40px 20px; }
+  header { text-align: center; margin-bottom: 40px; }
   h1 {
-    font-size: 3rem;
-    font-weight: 900;
-    letter-spacing: 1px;
-    color: #fff;
-    text-shadow: 0 0 10px var(--border-glow), 0 0 30px var(--border-glow);
-    margin-bottom: 5px;
+    font-size: 3rem; font-weight: 900; letter-spacing: 1px; color: #fff;
+    text-shadow: 0 0 10px var(--border-glow), 0 0 30px var(--border-glow); margin-bottom: 5px;
   }
-
-  .subtitle {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
-  }
-
+  .subtitle { color: var(--text-muted); font-size: 1.1rem; letter-spacing: 0.5px; }
   .games {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 25px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px;
   }
-
   .card {
-    background: var(--card-bg);
-    border: 1px solid rgba(168, 85, 247, 0.3);
-    border-radius: 18px;
-    overflow: hidden;
-    text-decoration: none;
-    color: var(--text-main);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--card-bg); border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 18px; overflow: hidden; text-decoration: none; color: var(--text-main);
+    display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
   .card:hover {
     transform: translateY(-8px) scale(1.02);
     border-color: var(--border-active);
     box-shadow: 0 0 20px var(--neon-shadow), 0 0 40px rgba(168, 85, 247, 0.2);
   }
-
-  .img-wrapper {
-    width: 100%;
-    height: 140px;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.4);
-  }
-
-  .card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-
-  .card:hover img {
-    transform: scale(1.1);
-  }
-
+  .img-wrapper { width: 100%; height: 140px; overflow: hidden; background: rgba(0,0,0,0.4); }
+  .card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+  .card:hover img { transform: scale(1.1); }
   .name {
-    padding: 14px 10px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 0.95rem;
-    text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+    padding: 14px 10px; text-align: center; font-weight: 700;
+    font-size: 0.95rem; text-shadow: 0 0 8px rgba(0,0,0,0.8);
+  }
+
+  /* CHAT */
+  #chatToggle {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 64px; height: 64px; border-radius: 50%;
+    background: linear-gradient(135deg, #7e22ce, #a855f7);
+    border: 2px solid var(--border-active);
+    box-shadow: 0 0 25px var(--neon-shadow), 0 0 40px rgba(168, 85, 247, 0.3);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    z-index: 900; transition: all 0.3s ease; font-size: 28px;
+  }
+  #chatToggle:hover { transform: scale(1.1); box-shadow: 0 0 35px var(--strong-glow); }
+
+  #chatPanel {
+    position: fixed; bottom: 110px; right: 28px;
+    width: 380px; max-width: calc(100vw - 40px);
+    height: 520px; max-height: calc(100vh - 140px);
+    background: rgba(15, 8, 28, 0.95);
+    border: 2px solid var(--border-glow); border-radius: 20px;
+    box-shadow: 0 0 40px var(--neon-shadow), inset 0 0 20px rgba(168, 85, 247, 0.15);
+    display: none; flex-direction: column; z-index: 950; overflow: hidden;
+    backdrop-filter: blur(12px);
+  }
+  #chatPanel.open { display: flex; }
+
+  .chat-header {
+    padding: 16px 18px;
+    background: linear-gradient(90deg, rgba(126, 34, 206, 0.4), rgba(168, 85, 247, 0.25));
+    border-bottom: 1px solid rgba(168, 85, 247, 0.4);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .chat-header h3 { font-size: 1.15rem; text-shadow: 0 0 10px var(--border-glow); }
+  .chat-header-btns { display: flex; gap: 10px; }
+  .chat-icon-btn {
+    background: transparent; border: 1px solid var(--border-glow);
+    color: var(--text-muted); width: 34px; height: 34px; border-radius: 8px;
+    cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+    transition: 0.25s;
+  }
+  .chat-icon-btn:hover {
+    background: rgba(168, 85, 247, 0.3); color: #fff; box-shadow: 0 0 12px var(--neon-shadow);
+  }
+
+  #messagesArea {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  #messagesArea::-webkit-scrollbar { width: 6px; }
+  #messagesArea::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
+
+  .message {
+    background: rgba(30, 15, 50, 0.7);
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    border-radius: 14px; padding: 10px 14px; position: relative;
+    animation: fadeIn 0.3s ease;
+  }
+  .message.own {
+    background: rgba(126, 34, 206, 0.25);
+    border-color: rgba(168, 85, 247, 0.5);
+  }
+  .msg-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.78rem; }
+  .msg-nick { color: var(--border-active); font-weight: 700; }
+  .msg-time { color: var(--text-muted); opacity: 0.8; }
+  .msg-text { font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
+  .msg-delete {
+    position: absolute; top: 8px; right: 10px;
+    background: transparent; border: none; color: #ff6b6b;
+    cursor: pointer; font-size: 14px; opacity: 0.6; transition: 0.2s;
+  }
+  .msg-delete:hover { opacity: 1; }
+
+  .chat-input-area {
+    padding: 14px; border-top: 1px solid rgba(168, 85, 247, 0.35);
+    display: flex; gap: 10px;
+  }
+  #chatInput {
+    flex: 1; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--border-glow); background: rgba(0,0,0,0.5);
+    color: #fff; font-size: 0.95rem; outline: none;
+  }
+  #chatInput:focus { box-shadow: 0 0 12px var(--neon-shadow); }
+  #sendBtn {
+    padding: 0 18px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #7e22ce, #a855f7);
+    color: #fff; font-weight: bold; cursor: pointer; transition: 0.25s;
+  }
+  #sendBtn:hover { box-shadow: 0 0 15px var(--strong-glow); }
+
+  #nickModal {
+    position: fixed; inset: 0;
+    background: rgba(7, 4, 13, 0.92); backdrop-filter: blur(10px);
+    display: none; justify-content: center; align-items: center; z-index: 1100;
+  }
+  #nickModal.show { display: flex; }
+  .nick-box {
+    background: var(--card-bg); border: 2px solid var(--border-glow);
+    padding: 32px 28px; border-radius: 18px;
+    box-shadow: 0 0 30px var(--neon-shadow); text-align: center;
+    width: 320px; max-width: 90%;
+  }
+  .nick-box h3 { margin-bottom: 8px; text-shadow: 0 0 10px var(--border-glow); }
+  .nick-box p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 18px; }
+
+  #settingsPanel {
+    position: absolute; inset: 0;
+    background: rgba(12, 6, 24, 0.97);
+    display: none; flex-direction: column; padding: 20px; z-index: 10;
+  }
+  #settingsPanel.show { display: flex; }
+  .settings-title { font-size: 1.2rem; margin-bottom: 20px; text-shadow: 0 0 8px var(--border-glow); }
+  .settings-row { margin-bottom: 16px; }
+  .settings-row label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; }
+  .settings-row input {
+    width: 100%; padding: 11px 14px; border-radius: 10px;
+    border: 1px solid var(--border-glow); background: rgba(0,0,0,0.5); color: #fff; outline: none;
+  }
+  .settings-actions { margin-top: auto; display: flex; gap: 10px; }
+  .settings-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+  #saveNickBtn { background: linear-gradient(135deg, #7e22ce, #a855f7); color: #fff; }
+  #closeSettingsBtn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(168,85,247,0.4); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (max-width: 480px) {
+    #chatPanel { right: 10px; left: 10px; width: auto; bottom: 100px; }
+    #chatToggle { right: 18px; bottom: 18px; }
   }
 </style>
 </head>
-
 <body>
 
-<!-- LOCK SCREEN OVERLAY -->
+<!-- AUTH -->
 <div id="authOverlay">
   <div class="auth-box">
     <h2>RESTRICTED ACCESS</h2>
@@ -209,119 +236,98 @@
   </div>
 </div>
 
-<!-- MAIN DASHBOARD -->
+<!-- MAIN -->
 <div id="appContent">
   <header>
     <h1>sehr tuffe spiele</h1>
     <div class="subtitle">hat nbepik aus ascapha schule gemacht</div>
   </header>
-
   <div class="games">
-    <a class="card" href="https://spacewaves2.io" target="_blank">
-      <div class="img-wrapper"><img src="spacewaves.jpg" alt="Space Waves"></div>
-      <div class="name">Space Waves</div>
-    </a>
+    <a class="card" href="https://spacewaves2.io" target="_blank"><div class="img-wrapper"><img src="spacewaves.jpg" alt="Space Waves"></div><div class="name">Space Waves</div></a>
+    <a class="card" href="https://blockblast.game/" target="_blank"><div class="img-wrapper"><img src="blockblast.jpg" alt="Block Blast"></div><div class="name">Block Blast</div></a>
+    <a class="card" href="https://www.miniplay.com/game/aquapark-io" target="_blank"><div class="img-wrapper"><img src="aquapark.jpg" alt="Aquapark.io"></div><div class="name">Aquapark.io</div></a>
+    <a class="card" href="https://manrunner2048.io/" target="_blank"><div class="img-wrapper"><img src="runner2048.jpg" alt="Runner 2048"></div><div class="name">Runner 2048</div></a>
+    <a class="card" href="https://games.voodoo.io/paperio2" target="_blank"><div class="img-wrapper"><img src="paperio2.jpg" alt="Paper.io 2"></div><div class="name">Paper.io 2</div></a>
+    <a class="card" href="http://slither.com/io" target="_blank"><div class="img-wrapper"><img src="slither.jpg" alt="Slither.io"></div><div class="name">Slither.io</div></a>
+    <a class="card" href="https://www.miniplay.com/game/noob-snake-2048" target="_blank"><div class="img-wrapper"><img src="noob2048.jpg" alt="Noob Snake 2048"></div><div class="name">Noob Snake 2048</div></a>
+    <a class="card" href="https://www.1001games.com/arcade/stack-fall" target="_blank"><div class="img-wrapper"><img src="stackfall.jpg" alt="Stack Fall"></div><div class="name">Stack Fall</div></a>
+    <a class="card" href="https://www.worldguessr.com/de" target="_blank"><div class="img-wrapper"><img src="worldguessr.jpg" alt="WorldGuessr"></div><div class="name">WorldGuessr</div></a>
+    <a class="card" href="https://geometry-games.io/dig-out-of-prison" target="_blank"><div class="img-wrapper"><img src="digout.jpg" alt="Dig Out Of Prison"></div><div class="name">Dig Out Of Prison</div></a>
+    <a class="card" href="https://thiefpuzzle.io/" target="_blank"><div class="img-wrapper"><img src="thiefpuzzle.jpg" alt="Thief Puzzle"></div><div class="name">Thief Puzzle</div></a>
+    <a class="card" href="https://ozogames.com/game/poxel-io/" target="_blank"><div class="img-wrapper"><img src="poxelio.jpg" alt="Poxel.io"></div><div class="name">Poxel.io</div></a>
+    <a class="card" href="https://agar.io/#ffa" target="_blank"><div class="img-wrapper"><img src="agario.jpg" alt="Agar.io"></div><div class="name">Agar.io</div></a>
+    <a class="card" href="https://geometrylitepc.io/" target="_blank"><div class="img-wrapper"><img src="geometrydash.jpg" alt="Geometry Dash"></div><div class="name">Geometry Dash</div></a>
+    <a class="card" href="https://minecraftforfreex.com/eaglercraft/" target="_blank"><div class="img-wrapper"><img src="minecraft.jpg" alt="Minecraft"></div><div class="name">Minecraft</div></a>
+    <a class="card" href="https://playhop.com/de/app/granny-original-259805" target="_blank"><div class="img-wrapper"><img src="granny.jpg" alt="Granny"></div><div class="name">Granny</div></a>
+    <a class="card" href="https://playhop.com/de/app/baldi-142549/#ffa" target="_blank"><div class="img-wrapper"><img src="baldi.jpg" alt="Baldi"></div><div class="name">Baldi</div></a>
+    <a class="card" href="https://cornhub.website/#ffa" target="_blank"><div class="img-wrapper"><img src="corn.jpg" alt="CornHub"></div><div class="name">CornHub</div></a>
+    <a class="card" href="https://ozgames.io/#ffa" target="_blank"><div class="img-wrapper"><img src="ozgames.jpg" alt="Ozgames"></div><div class="name">Ozgames</div></a>
+  </div>
+</div>
 
-    <a class="card" href="https://blockblast.game/" target="_blank">
-      <div class="img-wrapper"><img src="blockblast.jpg" alt="Block Blast"></div>
-      <div class="name">Block Blast</div>
-    </a>
+<!-- CHAT BUTTON -->
+<button id="chatToggle" title="Open Chat">💬</button>
 
-    <a class="card" href="https://www.miniplay.com/game/aquapark-io" target="_blank">
-      <div class="img-wrapper"><img src="aquapark.jpg" alt="Aquapark.io"></div>
-      <div class="name">Aquapark.io</div>
-    </a>
+<!-- CHAT PANEL -->
+<div id="chatPanel">
+  <div class="chat-header">
+    <h3>Chat</h3>
+    <div class="chat-header-btns">
+      <button class="chat-icon-btn" id="settingsBtn" title="Settings">⚙️</button>
+      <button class="chat-icon-btn" id="closeChatBtn" title="Close">✕</button>
+    </div>
+  </div>
+  <div id="messagesArea"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="Type a message..." maxlength="500">
+    <button id="sendBtn">Send</button>
+  </div>
+  <div id="settingsPanel">
+    <div class="settings-title">Settings</div>
+    <div class="settings-row">
+      <label>Your nickname</label>
+      <input type="text" id="newNickInput" maxlength="20" placeholder="Enter new nickname">
+    </div>
+    <div class="settings-actions">
+      <button id="closeSettingsBtn">Cancel</button>
+      <button id="saveNickBtn">Save</button>
+    </div>
+  </div>
+</div>
 
-    <a class="card" href="https://manrunner2048.io/" target="_blank">
-      <div class="img-wrapper"><img src="runner2048.jpg" alt="Runner 2048"></div>
-      <div class="name">Runner 2048</div>
-    </a>
-
-    <a class="card" href="https://games.voodoo.io/paperio2" target="_blank">
-      <div class="img-wrapper"><img src="paperio2.jpg" alt="Paper.io 2"></div>
-      <div class="name">Paper.io 2</div>
-    </a>
-
-    <a class="card" href="http://slither.com/io" target="_blank">
-      <div class="img-wrapper"><img src="slither.jpg" alt="Slither.io"></div>
-      <div class="name">Slither.io</div>
-    </a>
-
-    <a class="card" href="https://www.miniplay.com/game/noob-snake-2048" target="_blank">
-      <div class="img-wrapper"><img src="noob2048.jpg" alt="Noob Snake 2048"></div>
-      <div class="name">Noob Snake 2048</div>
-    </a>
-
-    <a class="card" href="https://www.1001games.com/arcade/stack-fall" target="_blank">
-      <div class="img-wrapper"><img src="stackfall.jpg" alt="Stack Fall"></div>
-      <div class="name">Stack Fall</div>
-    </a>
-
-    <a class="card" href="https://www.worldguessr.com/de" target="_blank">
-      <div class="img-wrapper"><img src="worldguessr.jpg" alt="WorldGuessr"></div>
-      <div class="name">WorldGuessr</div>
-    </a>
-
-    <a class="card" href="https://geometry-games.io/dig-out-of-prison" target="_blank">
-      <div class="img-wrapper"><img src="digout.jpg" alt="Dig Out Of Prison"></div>
-      <div class="name">Dig Out Of Prison</div>
-    </a>
-
-    <a class="card" href="https://thiefpuzzle.io/" target="_blank">
-      <div class="img-wrapper"><img src="thiefpuzzle.jpg" alt="Thief Puzzle"></div>
-      <div class="name">Thief Puzzle</div>
-    </a>
-
-    <a class="card" href="https://ozogames.com/game/poxel-io/" target="_blank">
-      <div class="img-wrapper"><img src="poxelio.jpg" alt="Poxel.io"></div>
-      <div class="name">Poxel.io</div>
-    </a>
-
-    <a class="card" href="https://agar.io/#ffa" target="_blank">
-      <div class="img-wrapper"><img src="agario.jpg" alt="Agar.io"></div>
-      <div class="name">Agar.io</div>
-    </a>
-
-    <a class="card" href="https://geometrylitepc.io/" target="_blank">
-      <div class="img-wrapper"><img src="geometrydash.jpg" alt="Geometry Dash"></div>
-      <div class="name">Geometry Dash</div>
-    </a>
-
-    <a class="card" href="https://minecraftforfreex.com/eaglercraft/" target="_blank">
-      <div class="img-wrapper"><img src="minecraft.jpg" alt="Minecraft"></div>
-      <div class="name">Minecraft</div>
-    </a>
-
-    <a class="card" href="https://playhop.com/de/app/granny-original-259805" target="_blank">
-      <div class="img-wrapper"><img src="granny.jpg" alt="Granny"></div>
-      <div class="name">Granny</div>
-    </a>
-
-    <a class="card" href="https://playhop.com/de/app/baldi-142549/#ffa" target="_blank">
-      <div class="img-wrapper"><img src="baldi.jpg" alt="Baldi"></div>
-      <div class="name">Baldi</div>
-    </a>
-
-    <a class="card" href="https://cornhub.website/#ffa" target="_blank">
-      <div class="img-wrapper"><img src="corn.jpg" alt="CornHub"></div>
-      <div class="name">CornHub</div>
-    </a>
-
-    <a class="card" href="https://ozgames.io/#ffa" target="_blank">
-      <div class="img-wrapper"><img src="ozgames.jpg" alt="Ozgames"></div>
-      <div class="name">Ozgames</div>
-    </a>
+<!-- NICK MODAL -->
+<div id="nickModal">
+  <div class="nick-box">
+    <h3>Choose your nickname</h3>
+    <p>This name will be shown next to your messages</p>
+    <input type="text" id="nickInput" class="auth-input" placeholder="Nickname" maxlength="20" style="margin-bottom:18px;">
+    <button class="auth-btn" id="setNickBtn">Continue</button>
   </div>
 </div>
 
 <script>
-  // CHANGE YOUR DESIRED PASSWORD HERE:
+  // ====================== FIREBASE CONFIG ======================
+  const firebaseConfig = {
+    apiKey: "AIzaSyBVAM3wehDn1lUl_FIs-OdZMK5hx6CF_Aw",
+    authDomain: "aschapha228.firebaseapp.com",
+    databaseURL: "https://aschapha228-default-rtdb.firebaseio.com",
+    projectId: "aschapha228",
+    storageBucket: "aschapha228.firebasestorage.app",
+    messagingSenderId: "462839368530",
+    appId: "1:462839368530:web:6e7411bd0aa7bb6165c88b",
+    measurementId: "G-BKMLF4GWRK"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const messagesRef = db.ref('messages');
+
+  // ====================== PASSWORD ======================
   const CORRECT_PASSWORD = "12345";
 
   function authenticate() {
     const input = document.getElementById('passInput').value;
     const errorMsg = document.getElementById('errorMsg');
-    
     if (input === CORRECT_PASSWORD) {
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
@@ -330,13 +336,157 @@
       document.getElementById('passInput').value = '';
     }
   }
-
   function checkEnter(event) {
-    if (event.key === 'Enter') {
-      authenticate();
-    }
+    if (event.key === 'Enter') authenticate();
   }
-</script>
 
+  // ====================== CHAT ======================
+  const STORAGE_NICK = 'ascapha_chat_nick';
+  let currentNick = localStorage.getItem(STORAGE_NICK) || null;
+
+  const chatToggle = document.getElementById('chatToggle');
+  const chatPanel = document.getElementById('chatPanel');
+  const nickModal = document.getElementById('nickModal');
+  const messagesArea = document.getElementById('messagesArea');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const closeChatBtn = document.getElementById('closeChatBtn');
+  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  const saveNickBtn = document.getElementById('saveNickBtn');
+  const newNickInput = document.getElementById('newNickInput');
+  const nickInput = document.getElementById('nickInput');
+  const setNickBtn = document.getElementById('setNickBtn');
+
+  chatToggle.addEventListener('click', () => {
+    if (!currentNick) {
+      nickModal.classList.add('show');
+      nickInput.focus();
+    } else {
+      openChat();
+    }
+  });
+
+  function openChat() {
+    chatPanel.classList.add('open');
+    chatInput.focus();
+  }
+
+  closeChatBtn.addEventListener('click', () => {
+    chatPanel.classList.remove('open');
+    settingsPanel.classList.remove('show');
+  });
+
+  setNickBtn.addEventListener('click', () => {
+    const nick = nickInput.value.trim();
+    if (nick.length < 2) {
+      alert('Nickname must be at least 2 characters');
+      return;
+    }
+    currentNick = nick;
+    localStorage.setItem(STORAGE_NICK, currentNick);
+    nickModal.classList.remove('show');
+    openChat();
+  });
+  nickInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') setNickBtn.click();
+  });
+
+  settingsBtn.addEventListener('click', () => {
+    newNickInput.value = currentNick;
+    settingsPanel.classList.add('show');
+  });
+  closeSettingsBtn.addEventListener('click', () => {
+    settingsPanel.classList.remove('show');
+  });
+  saveNickBtn.addEventListener('click', () => {
+    const nick = newNickInput.value.trim();
+    if (nick.length < 2) {
+      alert('Nickname must be at least 2 characters');
+      return;
+    }
+    currentNick = nick;
+    localStorage.setItem(STORAGE_NICK, currentNick);
+    settingsPanel.classList.remove('show');
+    renderMessages(lastMessages);
+  });
+
+  function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !currentNick) return;
+
+    const msg = {
+      nick: currentNick,
+      text: text,
+      time: new Date().toISOString()
+    };
+
+    messagesRef.push(msg);
+    chatInput.value = '';
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  function deleteMessage(key) {
+    messagesRef.child(key).remove();
+  }
+
+  function formatTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.toLocaleDateString();
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  let lastMessages = {};
+
+  function renderMessages(messages) {
+    lastMessages = messages || {};
+    messagesArea.innerHTML = '';
+
+    const keys = Object.keys(lastMessages);
+    if (keys.length === 0) {
+      messagesArea.innerHTML = '<div style="text-align:center;color:var(--text-muted);margin-top:40px;font-size:0.9rem;">No messages yet. Say hello!</div>';
+      return;
+    }
+
+    keys.sort((a, b) => new Date(lastMessages[a].time) - new Date(lastMessages[b].time));
+
+    keys.forEach(key => {
+      const msg = lastMessages[key];
+      const isOwn = msg.nick === currentNick;
+      const div = document.createElement('div');
+      div.className = 'message' + (isOwn ? ' own' : '');
+      div.innerHTML = `
+        <div class="msg-header">
+          <span class="msg-nick">${escapeHtml(msg.nick)}</span>
+          <span class="msg-time">${formatTime(msg.time)}</span>
+        </div>
+        <div class="msg-text">${escapeHtml(msg.text)}</div>
+        ${isOwn ? `<button class="msg-delete" title="Delete">✕</button>` : ''}
+      `;
+      if (isOwn) {
+        div.querySelector('.msg-delete').addEventListener('click', () => deleteMessage(key));
+      }
+      messagesArea.appendChild(div);
+    });
+
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+  }
+
+  // Слушаем сообщения в реальном времени
+  messagesRef.on('value', (snapshot) => {
+    const data = snapshot.val() || {};
+    renderMessages(data);
+  });
+</script>
 </body>
 </html>
