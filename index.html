@@ -1,162 +1,262 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>ASCAPHA BYPASS</title>
+<title>tim lol</title>
 
 <style>
+  :root {
+    --bg-gradient: linear-gradient(135deg, #2e1065 0%, #581c87 50%, #6b21a8 100%);
+    --card-bg: rgba(255, 255, 255, 0.08);
+    --card-hover-bg: rgba(255, 255, 255, 0.15);
+    --border-color: rgba(255, 255, 255, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #e9d5ff;
+    --accent: #a855f7;
+  }
 
-body{
-    margin:0;
-    background:#6b21a8;
-    font-family:Arial,sans-serif;
-}
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-h1{
-    text-align:center;
-    color:white;
-    padding:20px;
-}
+  body {
+    min-height: 100vh;
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text-primary);
+    padding: 30px 20px;
+  }
 
-.games{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:20px;
-    padding:20px;
-}
+  header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 30px;
+  }
 
-.card{
-    background:white;
-    border-radius:20px;
-    overflow:hidden;
-    text-decoration:none;
-    color:black;
-    transition:0.2s;
-}
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    margin-bottom: 8px;
+  }
 
-.card:hover{
-    transform:scale(1.03);
-}
+  p.subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
 
-.card img{
-    width:100%;
-    height:140px;
-    object-fit:cover;
-}
+  .search-container {
+    max-width: 450px;
+    margin: 0 auto;
+  }
 
-.name{
-    padding:12px;
-    text-align:center;
-    font-weight:bold;
-}
+  .search-input {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+  }
 
+  .search-input::placeholder {
+    color: #c084fc;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .games {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--text-primary);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.25s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    background: var(--card-hover-bg);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .img-wrapper {
+    width: 100%;
+    height: 130px;
+    background: rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover img {
+    transform: scale(1.08);
+  }
+
+  .name {
+    padding: 14px 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    margin: auto 0;
+  }
 </style>
 </head>
 
 <body>
 
-<h1>Fih School! mygames by nbepik</h1>
+<header>
+  <h1>Fih School!</h1>
+  <p class="subtitle">mygames by nbepik</p>
+  <div class="search-container">
+    <input type="text" id="search" class="search-input" placeholder="Search games..." onkeyup="filterGames()">
+  </div>
+</header>
 
-<div class="games">
+<main class="games" id="gamesGrid">
+  <a class="card" href="https://spacewaves2.io" target="_blank">
+    <div class="img-wrapper"><img src="spacewaves.jpg" alt="Space Waves"></div>
+    <div class="name">Space Waves</div>
+  </a>
 
-<a class="card" href="https://spacewaves2.io" target="_blank">
-<img src="spacewaves.jpg">
-<div class="name">Space Waves</div>
-</a>
+  <a class="card" href="https://blockblast.game/" target="_blank">
+    <div class="img-wrapper"><img src="blockblast.jpg" alt="Block Blast"></div>
+    <div class="name">Block Blast</div>
+  </a>
 
-<a class="card" href="https://blockblast.game/" target="_blank">
-<img src="blockblast.jpg">
-<div class="name">Block Blast</div>
-</a>
+  <a class="card" href="https://www.miniplay.com/game/aquapark-io" target="_blank">
+    <div class="img-wrapper"><img src="aquapark.jpg" alt="Aquapark.io"></div>
+    <div class="name">Aquapark.io</div>
+  </a>
 
-<a class="card" href="https://www.miniplay.com/game/aquapark-io" target="_blank">
-<img src="aquapark.jpg">
-<div class="name">Aquapark.io</div>
-</a>
+  <a class="card" href="https://manrunner2048.io/" target="_blank">
+    <div class="img-wrapper"><img src="runner2048.jpg" alt="Runner 2048"></div>
+    <div class="name">Runner 2048</div>
+  </a>
 
-<a class="card" href="https://manrunner2048.io/" target="_blank">
-<img src="runner2048.jpg">
-<div class="name">Runner 2048</div>
-</a>
+  <a class="card" href="https://games.voodoo.io/paperio2" target="_blank">
+    <div class="img-wrapper"><img src="paperio2.jpg" alt="Paper.io 2"></div>
+    <div class="name">Paper.io 2</div>
+  </a>
 
-<a class="card" href="https://games.voodoo.io/paperio2" target="_blank">
-<img src="paperio2.jpg">
-<div class="name">Paper.io 2</div>
-</a>
+  <a class="card" href="http://slither.com/io" target="_blank">
+    <div class="img-wrapper"><img src="slither.jpg" alt="Slither.io"></div>
+    <div class="name">Slither.io</div>
+  </a>
 
-<a class="card" href="http://slither.com/io" target="_blank">
-<img src="slither.jpg">
-<div class="name">Slither.io</div>
-</a>
+  <a class="card" href="https://www.miniplay.com/game/noob-snake-2048" target="_blank">
+    <div class="img-wrapper"><img src="noob2048.jpg" alt="Noob Snake 2048"></div>
+    <div class="name">Noob Snake 2048</div>
+  </a>
 
-<a class="card" href="https://www.miniplay.com/game/noob-snake-2048" target="_blank">
-<img src="noob2048.jpg">
-<div class="name">Noob Snake 2048</div>
-</a>
+  <a class="card" href="https://www.1001games.com/arcade/stack-fall" target="_blank">
+    <div class="img-wrapper"><img src="stackfall.jpg" alt="Stack Fall"></div>
+    <div class="name">Stack Fall</div>
+  </a>
 
-<a class="card" href="https://www.1001games.com/arcade/stack-fall" target="_blank">
-<img src="stackfall.jpg">
-<div class="name">Stack Fall</div>
-</a>
+  <a class="card" href="https://www.worldguessr.com/de" target="_blank">
+    <div class="img-wrapper"><img src="worldguessr.jpg" alt="WorldGuessr"></div>
+    <div class="name">WorldGuessr</div>
+  </a>
 
-<a class="card" href="https://www.worldguessr.com/de" target="_blank">
-<img src="worldguessr.jpg">
-<div class="name">WorldGuessr</div>
-</a>
+  <a class="card" href="https://geometry-games.io/dig-out-of-prison" target="_blank">
+    <div class="img-wrapper"><img src="digout.jpg" alt="Dig Out Of Prison"></div>
+    <div class="name">Dig Out Of Prison</div>
+  </a>
 
-<a class="card" href="https://geometry-games.io/dig-out-of-prison" target="_blank">
-<img src="digout.jpg">
-<div class="name">Dig Out Of Prison</div>
-</a>
+  <a class="card" href="https://thiefpuzzle.io/" target="_blank">
+    <div class="img-wrapper"><img src="thiefpuzzle.jpg" alt="Thief Puzzle"></div>
+    <div class="name">Thief Puzzle</div>
+  </a>
 
-<a class="card" href="https://thiefpuzzle.io/" target="_blank">
-<img src="thiefpuzzle.jpg">
-<div class="name">Thief Puzzle</div>
-</a>
+  <a class="card" href="https://ozogames.com/game/poxel-io/" target="_blank">
+    <div class="img-wrapper"><img src="poxelio.jpg" alt="Poxel.io"></div>
+    <div class="name">Poxel.io</div>
+  </a>
 
-<a class="card" href="https://ozogames.com/game/poxel-io/" target="_blank">
-<img src="poxelio.jpg">
-<div class="name">Poxel.io</div>
-</a>
+  <a class="card" href="https://agar.io/#ffa" target="_blank">
+    <div class="img-wrapper"><img src="agario.jpg" alt="Agar.io"></div>
+    <div class="name">Agar.io</div>
+  </a>
 
-<a class="card" href="https://agar.io/#ffa" target="_blank">
-<img src="agario.jpg">
-<div class="name">Agar.io</div>
-</a>
+  <a class="card" href="https://geometrylitepc.io/" target="_blank">
+    <div class="img-wrapper"><img src="geometrydash.jpg" alt="Geometry Dash"></div>
+    <div class="name">Geometry Dash</div>
+  </a>
 
-<a class="card" href="https://geometrylitepc.io/" target="_blank">
-<img src="geometrydash.jpg">
-<div class="name">Geometry Dash</div>
-</a>
+  <a class="card" href="https://minecraftforfreex.com/eaglercraft/" target="_blank">
+    <div class="img-wrapper"><img src="minecraft.jpg" alt="Minecraft"></div>
+    <div class="name">Minecraft</div>
+  </a>
 
-<a class="card" href="https://minecraftforfreex.com/eaglercraft/" target="_blank">
-<img src="minecraft.jpg">
-<div class="name">Minecraft</div>
-</a>
+  <a class="card" href="https://playhop.com/de/app/granny-original-259805" target="_blank">
+    <div class="img-wrapper"><img src="granny.jpg" alt="Granny"></div>
+    <div class="name">Granny</div>
+  </a>
 
-<a class="card" href="https://playhop.com/de/app/granny-original-259805" target="_blank">
-<img src="granny.jpg">
-<div class="name">Granny</div>
-</a>
-    
-<a class="card" href="https://playhop.com/de/app/baldi-142549/#ffa" target="_blank">
-<img src="baldi.jpg">
-<div class="name">Baldi</div>
-</a>
+  <a class="card" href="https://playhop.com/de/app/baldi-142549/#ffa" target="_blank">
+    <div class="img-wrapper"><img src="baldi.jpg" alt="Baldi"></div>
+    <div class="name">Baldi</div>
+  </a>
 
-<a class="card" href="https://cornhub.website/#ffa" target="_blank">
-<img src="corn.jpg">
-<div class="name">CornHub</div>
-</a>
+  <a class="card" href="https://cornhub.website/#ffa" target="_blank">
+    <div class="img-wrapper"><img src="corn.jpg" alt="CornHub"></div>
+    <div class="name">CornHub</div>
+  </a>
 
-<a class="card" href="https://ozgames.io/#ffa" target="_blank">
-<img src="ozgames.jpg">
-<div class="name">Ozgames</div>
-</a>
+  <a class="card" href="https://ozgames.io/#ffa" target="_blank">
+    <div class="img-wrapper"><img src="ozgames.jpg" alt="Ozgames"></div>
+    <div class="name">Ozgames</div>
+  </a>
+</main>
 
-</div>
+<script>
+function filterGames() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const cards = document.querySelectorAll('.card');
+  
+  cards.forEach(card => {
+    const name = card.querySelector('.name').textContent.toLowerCase();
+    card.style.display = name.includes(query) ? 'flex' : 'none';
+  });
+}
+</script>
 
 </body>
 </html>
