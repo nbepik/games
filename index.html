@@ -102,32 +102,35 @@
   }
 
   .games {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px;
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+    gap: 18px;
   }
   .card {
-    background: var(--card-bg); border: 1px solid rgba(168, 85, 247, 0.3);
-    border-radius: 18px; overflow: hidden; color: var(--text-main);
-    display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--card-bg); 
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 16px; 
+    color: var(--text-main);
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    padding: 22px 12px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    min-height: 80px;
   }
   .card:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-6px);
     border-color: var(--border-active);
-    box-shadow: 0 0 20px var(--neon-shadow), 0 0 40px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 0 20px var(--neon-shadow);
+    background: rgba(126, 34, 206, 0.25);
   }
   .card.hidden { display: none; }
-  .img-wrapper {
-    width: 100%; height: 140px; overflow: hidden;
-    background: #111;
-  }
-  .img-wrapper img {
-    width: 100%; height: 100%; object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-  .card:hover .img-wrapper img { transform: scale(1.08); }
   .name {
-    padding: 14px 10px; text-align: center; font-weight: 700;
-    font-size: 0.95rem; text-shadow: 0 0 8px rgba(0,0,0,0.8);
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.3;
   }
 
   #gameModal {
@@ -319,192 +322,56 @@
 
   <div class="games" id="gamesGrid">
 
-    <!-- Online -->
-    <div class="card" data-url="https://spacewaves2.io" data-name="space waves">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/space.png" alt="Space Waves"></div>
-      <div class="name">Space Waves</div>
-    </div>
-    <div class="card" data-url="https://blockblast.game/" data-name="block blast">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/brick.png" alt="Block Blast"></div>
-      <div class="name">Block Blast</div>
-    </div>
-    <div class="card" data-url="https://www.miniplay.com/game/aquapark-io" data-name="aquapark">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/water-park.png" alt="Aquapark"></div>
-      <div class="name">Aquapark.io</div>
-    </div>
-    <div class="card" data-url="https://manrunner2048.io/" data-name="runner 2048">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/running.png" alt="Runner 2048"></div>
-      <div class="name">Runner 2048</div>
-    </div>
-    <div class="card" data-url="https://www.miniplay.com/game/noob-snake-2048" data-name="noob snake">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/snake.png" alt="Noob Snake"></div>
-      <div class="name">Noob Snake 2048</div>
-    </div>
-    <div class="card" data-url="https://www.worldguessr.com/de" data-name="worldguessr">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/globe.png" alt="WorldGuessr"></div>
-      <div class="name">WorldGuessr</div>
-    </div>
-    <div class="card" data-url="https://thiefpuzzle.io/" data-name="thief puzzle">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/thief.png" alt="Thief Puzzle"></div>
-      <div class="name">Thief Puzzle</div>
-    </div>
-    <div class="card" data-url="https://ozogames.com/game/poxel-io/" data-name="poxel">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/cube.png" alt="Poxel"></div>
-      <div class="name">Poxel.io</div>
-    </div>
-    <div class="card" data-url="https://ozgames.io/#ffa" data-name="ozgames">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/controller.png" alt="Ozgames"></div>
-      <div class="name">Ozgames</div>
-    </div>
-    <div class="card" data-url="https://doppel.fit" data-name="doppel">
-      <div class="img-wrapper"><img src="https://doppel.fit/favicon.ico" alt="Doppel"></div>
-      <div class="name">Doppel.fit</div>
-    </div>
+    <div class="card" data-url="https://spacewaves2.io" data-name="space waves"><div class="name">Space Waves</div></div>
+    <div class="card" data-url="https://blockblast.game/" data-name="block blast"><div class="name">Block Blast</div></div>
+    <div class="card" data-url="https://www.miniplay.com/game/aquapark-io" data-name="aquapark"><div class="name">Aquapark.io</div></div>
+    <div class="card" data-url="https://manrunner2048.io/" data-name="runner 2048"><div class="name">Runner 2048</div></div>
+    <div class="card" data-url="https://www.miniplay.com/game/noob-snake-2048" data-name="noob snake"><div class="name">Noob Snake 2048</div></div>
+    <div class="card" data-url="https://www.worldguessr.com/de" data-name="worldguessr"><div class="name">WorldGuessr</div></div>
+    <div class="card" data-url="https://thiefpuzzle.io/" data-name="thief puzzle"><div class="name">Thief Puzzle</div></div>
+    <div class="card" data-url="https://ozogames.com/game/poxel-io/" data-name="poxel"><div class="name">Poxel.io</div></div>
+    <div class="card" data-url="https://ozgames.io/#ffa" data-name="ozgames"><div class="name">Ozgames</div></div>
+    <div class="card" data-url="https://doppel.fit" data-name="doppel"><div class="name">Doppel.fit</div></div>
 
-    <!-- Local games with icons -->
-    <div class="card" data-url="2048.html" data-name="2048">
-      <div class="img-wrapper"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/2048_logo.svg/300px-2048_logo.svg.png" alt="2048"></div>
-      <div class="name">2048</div>
-    </div>
-    <div class="card" data-url="amongus.html" data-name="among us">
-      <div class="img-wrapper"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Among_Us_Logo.svg/300px-Among_Us_Logo.svg.png" alt="Among Us"></div>
-      <div class="name">Among Us</div>
-    </div>
-    <div class="card" data-url="bad-piggies.html" data-name="bad piggies">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/pig.png" alt="Bad Piggies"></div>
-      <div class="name">Bad Piggies</div>
-    </div>
-    <div class="card" data-url="boxing-random.html" data-name="boxing random">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/boxing.png" alt="Boxing Random"></div>
-      <div class="name">Boxing Random</div>
-    </div>
-    <div class="card" data-url="cell-machine.html" data-name="cell machine">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/microscope.png" alt="Cell Machine"></div>
-      <div class="name">Cell Machine</div>
-    </div>
-    <div class="card" data-url="cheeserolling.html" data-name="cheese rolling">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/cheese.png" alt="Cheese Rolling"></div>
-      <div class="name">Cheese Rolling</div>
-    </div>
-    <div class="card" data-url="cluster-rush.html" data-name="cluster rush">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/car.png" alt="Cluster Rush"></div>
-      <div class="name">Cluster Rush</div>
-    </div>
-    <div class="card" data-url="cookie-clicker.html" data-name="cookie clicker">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/cookie.png" alt="Cookie Clicker"></div>
-      <div class="name">Cookie Clicker</div>
-    </div>
-    <div class="card" data-url="cut-the-rope.html" data-name="cut the rope">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/candy.png" alt="Cut the Rope"></div>
-      <div class="name">Cut the Rope</div>
-    </div>
-    <div class="card" data-url="drift-hunters.html" data-name="drift hunters">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/racing-car.png" alt="Drift Hunters"></div>
-      <div class="name">Drift Hunters</div>
-    </div>
-    <div class="card" data-url="geomtrydash.html" data-name="geometry dash">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/geometry.png" alt="Geometry Dash"></div>
-      <div class="name">Geometry Dash</div>
-    </div>
-    <div class="card" data-url="motox3m.html" data-name="moto x3m">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/motorcycle.png" alt="Moto X3M"></div>
-      <div class="name">Moto X3M</div>
-    </div>
-    <div class="card" data-url="rooftop-snipers.html" data-name="rooftop snipers">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/sniper.png" alt="Rooftop Snipers"></div>
-      <div class="name">Rooftop Snipers</div>
-    </div>
-    <div class="card" data-url="rooftop-snipers2.html" data-name="rooftop snipers 2">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/rifle.png" alt="Rooftop Snipers 2"></div>
-      <div class="name">Rooftop Snipers 2</div>
-    </div>
-    <div class="card" data-url="subway-surfers.html" data-name="subway surfers">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/subway.png" alt="Subway Surfers"></div>
-      <div class="name">Subway Surfers</div>
-    </div>
-    <div class="card" data-url="thepasswordgame.html" data-name="password game">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/password.png" alt="Password Game"></div>
-      <div class="name">The Password Game</div>
-    </div>
-    <div class="card" data-url="untitledgoosegame.html" data-name="untitled goose">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/goose.png" alt="Untitled Goose Game"></div>
-      <div class="name">Untitled Goose Game</div>
-    </div>
-    <div class="card" data-url="webecomewhatwebehold.html" data-name="we become what we behold">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/eye.png" alt="We Become What We Behold"></div>
-      <div class="name">We Become What We Behold</div>
-    </div>
+    <div class="card" data-url="2048.html" data-name="2048"><div class="name">2048</div></div>
+    <div class="card" data-url="amongus.html" data-name="among us"><div class="name">Among Us</div></div>
+    <div class="card" data-url="bad-piggies.html" data-name="bad piggies"><div class="name">Bad Piggies</div></div>
+    <div class="card" data-url="boxing-random.html" data-name="boxing random"><div class="name">Boxing Random</div></div>
+    <div class="card" data-url="cell-machine.html" data-name="cell machine"><div class="name">Cell Machine</div></div>
+    <div class="card" data-url="cheeserolling.html" data-name="cheese rolling"><div class="name">Cheese Rolling</div></div>
+    <div class="card" data-url="cluster-rush.html" data-name="cluster rush"><div class="name">Cluster Rush</div></div>
+    <div class="card" data-url="cookie-clicker.html" data-name="cookie clicker"><div class="name">Cookie Clicker</div></div>
+    <div class="card" data-url="cut-the-rope.html" data-name="cut the rope"><div class="name">Cut the Rope</div></div>
+    <div class="card" data-url="drift-hunters.html" data-name="drift hunters"><div class="name">Drift Hunters</div></div>
+    <div class="card" data-url="geomtrydash.html" data-name="geometry dash"><div class="name">Geometry Dash</div></div>
+    <div class="card" data-url="motox3m.html" data-name="moto x3m"><div class="name">Moto X3M</div></div>
+    <div class="card" data-url="rooftop-snipers.html" data-name="rooftop snipers"><div class="name">Rooftop Snipers</div></div>
+    <div class="card" data-url="rooftop-snipers2.html" data-name="rooftop snipers 2"><div class="name">Rooftop Snipers 2</div></div>
+    <div class="card" data-url="subway-surfers.html" data-name="subway surfers"><div class="name">Subway Surfers</div></div>
+    <div class="card" data-url="thepasswordgame.html" data-name="password game"><div class="name">The Password Game</div></div>
+    <div class="card" data-url="untitledgoosegame.html" data-name="untitled goose"><div class="name">Untitled Goose Game</div></div>
+    <div class="card" data-url="webecomewhatwebehold.html" data-name="we become what we behold"><div class="name">We Become What We Behold</div></div>
 
-    <!-- New games -->
-    <div class="card" data-url="spacebarclicker.html" data-name="spacebar clicker">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/keyboard.png" alt="Spacebar Clicker"></div>
-      <div class="name">Spacebar Clicker</div>
-    </div>
-    <div class="card" data-url="sandtris.html" data-name="sandtris">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/hourglass.png" alt="Sandtris"></div>
-      <div class="name">Sandtris</div>
-    </div>
-    <div class="card" data-url="bitlife.html" data-name="bitlife">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/person.png" alt="BitLife"></div>
-      <div class="name">BitLife</div>
-    </div>
-    <div class="card" data-url="bouncy-basketball.html" data-name="bouncy basketball">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/basketball.png" alt="Bouncy Basketball"></div>
-      <div class="name">Bouncy Basketball</div>
-    </div>
-    <div class="card" data-url="breaking-the-bank.html" data-name="breaking the bank">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/bank.png" alt="Breaking the Bank"></div>
-      <div class="name">Breaking the Bank</div>
-    </div>
-    <div class="card" data-url="monkey-mart.html" data-name="monkey mart">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/monkey.png" alt="Monkey Mart"></div>
-      <div class="name">Monkey Mart</div>
-    </div>
-    <div class="card" data-url="getaway-shootout.html" data-name="getaway shootout">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/explosion.png" alt="Getaway Shootout"></div>
-      <div class="name">Getaway Shootout</div>
-    </div>
-    <div class="card" data-url="escroadcity2.html" data-name="escape road city">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/police-car.png" alt="Escape Road City"></div>
-      <div class="name">Escape Road City 2</div>
-    </div>
-    <div class="card" data-url="drive-mad.html" data-name="drive mad">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/car.png" alt="Drive Mad"></div>
-      <div class="name">Drive Mad</div>
-    </div>
-    <div class="card" data-url="monster-tracks.html" data-name="monster tracks">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/monster-truck.png" alt="Monster Tracks"></div>
-      <div class="name">Monster Tracks</div>
-    </div>
-    <div class="card" data-url="rocketgoal.html" data-name="rocket goal">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/soccer-ball.png" alt="Rocket Goal"></div>
-      <div class="name">Rocket Goal</div>
-    </div>
-    <div class="card" data-url="stickman-hook.html" data-name="stickman hook">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/stickman.png" alt="Stickman Hook"></div>
-      <div class="name">Stickman Hook</div>
-    </div>
-    <div class="card" data-url="soccer-random.html" data-name="soccer random">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/soccer.png" alt="Soccer Random"></div>
-      <div class="name">Soccer Random</div>
-    </div>
-    <div class="card" data-url="drift-boss.html" data-name="drift boss">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/racing.png" alt="Drift Boss"></div>
-      <div class="name">Drift Boss</div>
-    </div>
-    <div class="card" data-url="eaglercraft.html" data-name="minecraft eaglercraft">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/minecraft-logo.png" alt="Minecraft"></div>
-      <div class="name">Minecraft</div>
-    </div>
-    <div class="card" data-url="doom.html" data-name="doom">
-      <div class="img-wrapper"><img src="https://img.icons8.com/color/512/doom.png" alt="Doom"></div>
-      <div class="name">Doom</div>
-    </div>
+    <div class="card" data-url="spacebarclicker.html" data-name="spacebar clicker"><div class="name">Spacebar Clicker</div></div>
+    <div class="card" data-url="sandtris.html" data-name="sandtris"><div class="name">Sandtris</div></div>
+    <div class="card" data-url="bitlife.html" data-name="bitlife"><div class="name">BitLife</div></div>
+    <div class="card" data-url="bouncy-basketball.html" data-name="bouncy basketball"><div class="name">Bouncy Basketball</div></div>
+    <div class="card" data-url="breaking-the-bank.html" data-name="breaking the bank"><div class="name">Breaking the Bank</div></div>
+    <div class="card" data-url="monkey-mart.html" data-name="monkey mart"><div class="name">Monkey Mart</div></div>
+    <div class="card" data-url="getaway-shootout.html" data-name="getaway shootout"><div class="name">Getaway Shootout</div></div>
+    <div class="card" data-url="escroadcity2.html" data-name="escape road city"><div class="name">Escape Road City 2</div></div>
+    <div class="card" data-url="drive-mad.html" data-name="drive mad"><div class="name">Drive Mad</div></div>
+    <div class="card" data-url="monster-tracks.html" data-name="monster tracks"><div class="name">Monster Tracks</div></div>
+    <div class="card" data-url="rocketgoal.html" data-name="rocket goal"><div class="name">Rocket Goal</div></div>
+    <div class="card" data-url="stickman-hook.html" data-name="stickman hook"><div class="name">Stickman Hook</div></div>
+    <div class="card" data-url="soccer-random.html" data-name="soccer random"><div class="name">Soccer Random</div></div>
+    <div class="card" data-url="drift-boss.html" data-name="drift boss"><div class="name">Drift Boss</div></div>
+    <div class="card" data-url="eaglercraft.html" data-name="minecraft eaglercraft"><div class="name">Minecraft</div></div>
+    <div class="card" data-url="doom.html" data-name="doom"><div class="name">Doom</div></div>
 
   </div>
 </div>
 
-<!-- GAME MODAL -->
 <div id="gameModal">
   <div class="game-modal-box">
     <div class="game-modal-header">
