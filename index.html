@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ascapha bypass</title>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
@@ -79,6 +78,7 @@
     background: var(--card-bg); border: 1px solid rgba(168, 85, 247, 0.3);
     border-radius: 18px; overflow: hidden; text-decoration: none; color: var(--text-main);
     display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
   }
   .card:hover {
     transform: translateY(-8px) scale(1.02);
@@ -91,6 +91,66 @@
   .name {
     padding: 14px 10px; text-align: center; font-weight: 700;
     font-size: 0.95rem; text-shadow: 0 0 8px rgba(0,0,0,0.8);
+  }
+
+  /* ===== GAME MODAL ===== */
+  #gameModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 4, 13, 0.75);
+    backdrop-filter: blur(18px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  #gameModal.open { display: flex; }
+  .game-modal-box {
+    width: 95vw;
+    height: 90vh;
+    max-width: 1400px;
+    background: #0d0618;
+    border: 2px solid var(--border-glow);
+    border-radius: 18px;
+    box-shadow: 0 0 50px var(--neon-shadow);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .game-modal-header {
+    padding: 12px 18px;
+    background: linear-gradient(90deg, rgba(126, 34, 206, 0.5), rgba(168, 85, 247, 0.3));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.4);
+  }
+  .game-modal-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-shadow: 0 0 8px var(--border-glow);
+  }
+  #closeGameBtn {
+    background: transparent;
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.25s;
+  }
+  #closeGameBtn:hover {
+    background: rgba(255, 107, 107, 0.2);
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+  }
+  #gameFrame {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #000;
   }
 
   /* CHAT */
@@ -243,25 +303,97 @@
     <div class="subtitle">hat nbepik aus ascapha schule gemacht</div>
   </header>
   <div class="games">
-    <a class="card" href="https://spacewaves2.io" target="_blank"><div class="img-wrapper"><img src="spacewaves.jpg" alt="Space Waves"></div><div class="name">Space Waves</div></a>
-    <a class="card" href="https://blockblast.game/" target="_blank"><div class="img-wrapper"><img src="blockblast.jpg" alt="Block Blast"></div><div class="name">Block Blast</div></a>
-    <a class="card" href="https://www.miniplay.com/game/aquapark-io" target="_blank"><div class="img-wrapper"><img src="aquapark.jpg" alt="Aquapark.io"></div><div class="name">Aquapark.io</div></a>
-    <a class="card" href="https://manrunner2048.io/" target="_blank"><div class="img-wrapper"><img src="runner2048.jpg" alt="Runner 2048"></div><div class="name">Runner 2048</div></a>
-    <a class="card" href="https://games.voodoo.io/paperio2" target="_blank"><div class="img-wrapper"><img src="paperio2.jpg" alt="Paper.io 2"></div><div class="name">Paper.io 2</div></a>
-    <a class="card" href="http://slither.com/io" target="_blank"><div class="img-wrapper"><img src="slither.jpg" alt="Slither.io"></div><div class="name">Slither.io</div></a>
-    <a class="card" href="https://www.miniplay.com/game/noob-snake-2048" target="_blank"><div class="img-wrapper"><img src="noob2048.jpg" alt="Noob Snake 2048"></div><div class="name">Noob Snake 2048</div></a>
-    <a class="card" href="https://www.1001games.com/arcade/stack-fall" target="_blank"><div class="img-wrapper"><img src="stackfall.jpg" alt="Stack Fall"></div><div class="name">Stack Fall</div></a>
-    <a class="card" href="https://www.worldguessr.com/de" target="_blank"><div class="img-wrapper"><img src="worldguessr.jpg" alt="WorldGuessr"></div><div class="name">WorldGuessr</div></a>
-    <a class="card" href="https://geometry-games.io/dig-out-of-prison" target="_blank"><div class="img-wrapper"><img src="digout.jpg" alt="Dig Out Of Prison"></div><div class="name">Dig Out Of Prison</div></a>
-    <a class="card" href="https://thiefpuzzle.io/" target="_blank"><div class="img-wrapper"><img src="thiefpuzzle.jpg" alt="Thief Puzzle"></div><div class="name">Thief Puzzle</div></a>
-    <a class="card" href="https://ozogames.com/game/poxel-io/" target="_blank"><div class="img-wrapper"><img src="poxelio.jpg" alt="Poxel.io"></div><div class="name">Poxel.io</div></a>
-    <a class="card" href="https://agar.io/#ffa" target="_blank"><div class="img-wrapper"><img src="agario.jpg" alt="Agar.io"></div><div class="name">Agar.io</div></a>
-    <a class="card" href="https://geometrylitepc.io/" target="_blank"><div class="img-wrapper"><img src="geometrydash.jpg" alt="Geometry Dash"></div><div class="name">Geometry Dash</div></a>
-    <a class="card" href="https://minecraftforfreex.com/eaglercraft/" target="_blank"><div class="img-wrapper"><img src="minecraft.jpg" alt="Minecraft"></div><div class="name">Minecraft</div></a>
-    <a class="card" href="https://playhop.com/de/app/granny-original-259805" target="_blank"><div class="img-wrapper"><img src="granny.jpg" alt="Granny"></div><div class="name">Granny</div></a>
-    <a class="card" href="https://playhop.com/de/app/baldi-142549/#ffa" target="_blank"><div class="img-wrapper"><img src="baldi.jpg" alt="Baldi"></div><div class="name">Baldi</div></a>
-    <a class="card" href="https://cornhub.website/#ffa" target="_blank"><div class="img-wrapper"><img src="corn.jpg" alt="CornHub"></div><div class="name">CornHub</div></a>
-    <a class="card" href="https://ozgames.io/#ffa" target="_blank"><div class="img-wrapper"><img src="ozgames.jpg" alt="Ozgames"></div><div class="name">Ozgames</div></a>
+    <div class="card" data-url="https://spacewaves2.io">
+      <div class="img-wrapper"><img src="spacewaves.jpg" alt="Space Waves"></div>
+      <div class="name">Space Waves</div>
+    </div>
+    <div class="card" data-url="https://blockblast.game/">
+      <div class="img-wrapper"><img src="blockblast.jpg" alt="Block Blast"></div>
+      <div class="name">Block Blast</div>
+    </div>
+    <div class="card" data-url="https://www.miniplay.com/game/aquapark-io">
+      <div class="img-wrapper"><img src="aquapark.jpg" alt="Aquapark.io"></div>
+      <div class="name">Aquapark.io</div>
+    </div>
+    <div class="card" data-url="https://manrunner2048.io/">
+      <div class="img-wrapper"><img src="runner2048.jpg" alt="Runner 2048"></div>
+      <div class="name">Runner 2048</div>
+    </div>
+    <div class="card" data-url="https://games.voodoo.io/paperio2">
+      <div class="img-wrapper"><img src="paperio2.jpg" alt="Paper.io 2"></div>
+      <div class="name">Paper.io 2</div>
+    </div>
+    <div class="card" data-url="http://slither.com/io">
+      <div class="img-wrapper"><img src="slither.jpg" alt="Slither.io"></div>
+      <div class="name">Slither.io</div>
+    </div>
+    <div class="card" data-url="https://www.miniplay.com/game/noob-snake-2048">
+      <div class="img-wrapper"><img src="noob2048.jpg" alt="Noob Snake 2048"></div>
+      <div class="name">Noob Snake 2048</div>
+    </div>
+    <div class="card" data-url="https://www.1001games.com/arcade/stack-fall">
+      <div class="img-wrapper"><img src="stackfall.jpg" alt="Stack Fall"></div>
+      <div class="name">Stack Fall</div>
+    </div>
+    <div class="card" data-url="https://www.worldguessr.com/de">
+      <div class="img-wrapper"><img src="worldguessr.jpg" alt="WorldGuessr"></div>
+      <div class="name">WorldGuessr</div>
+    </div>
+    <div class="card" data-url="https://geometry-games.io/dig-out-of-prison">
+      <div class="img-wrapper"><img src="digout.jpg" alt="Dig Out Of Prison"></div>
+      <div class="name">Dig Out Of Prison</div>
+    </div>
+    <div class="card" data-url="https://thiefpuzzle.io/">
+      <div class="img-wrapper"><img src="thiefpuzzle.jpg" alt="Thief Puzzle"></div>
+      <div class="name">Thief Puzzle</div>
+    </div>
+    <div class="card" data-url="https://ozogames.com/game/poxel-io/">
+      <div class="img-wrapper"><img src="poxelio.jpg" alt="Poxel.io"></div>
+      <div class="name">Poxel.io</div>
+    </div>
+    <div class="card" data-url="https://agar.io/#ffa">
+      <div class="img-wrapper"><img src="agario.jpg" alt="Agar.io"></div>
+      <div class="name">Agar.io</div>
+    </div>
+    <div class="card" data-url="https://geometrylitepc.io/">
+      <div class="img-wrapper"><img src="geometrydash.jpg" alt="Geometry Dash"></div>
+      <div class="name">Geometry Dash</div>
+    </div>
+    <div class="card" data-url="https://minecraftforfreex.com/eaglercraft/">
+      <div class="img-wrapper"><img src="minecraft.jpg" alt="Minecraft"></div>
+      <div class="name">Minecraft</div>
+    </div>
+    <div class="card" data-url="https://playhop.com/de/app/granny-original-259805">
+      <div class="img-wrapper"><img src="granny.jpg" alt="Granny"></div>
+      <div class="name">Granny</div>
+    </div>
+    <div class="card" data-url="https://playhop.com/de/app/baldi-142549/#ffa">
+      <div class="img-wrapper"><img src="baldi.jpg" alt="Baldi"></div>
+      <div class="name">Baldi</div>
+    </div>
+    <div class="card" data-url="https://cornhub.website/#ffa">
+      <div class="img-wrapper"><img src="corn.jpg" alt="CornHub"></div>
+      <div class="name">CornHub</div>
+    </div>
+    <div class="card" data-url="https://ozgames.io/#ffa">
+      <div class="img-wrapper"><img src="ozgames.jpg" alt="Ozgames"></div>
+      <div class="name">Ozgames</div>
+    </div>
+    <div class="card" data-url="https://doppel.fit">
+      <div class="img-wrapper"><img src="https://doppel.fit/favicon.ico" alt="Doppel.fit" style="object-fit:contain;background:#111;padding:25px;"></div>
+      <div class="name">Doppel.fit</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME MODAL -->
+<div id="gameModal">
+  <div class="game-modal-box">
+    <div class="game-modal-header">
+      <div class="game-modal-title" id="gameModalTitle">Game</div>
+      <button id="closeGameBtn">✕</button>
+    </div>
+    <iframe id="gameFrame" allowfullscreen></iframe>
   </div>
 </div>
 
@@ -306,7 +438,7 @@
 </div>
 
 <script>
-  // ====================== FIREBASE CONFIG ======================
+  // ====================== FIREBASE ======================
   const firebaseConfig = {
     apiKey: "AIzaSyBVAM3wehDn1lUl_FIs-OdZMK5hx6CF_Aw",
     authDomain: "aschapha228.firebaseapp.com",
@@ -339,6 +471,35 @@
   function checkEnter(event) {
     if (event.key === 'Enter') authenticate();
   }
+
+  // ====================== GAME MODAL ======================
+  const gameModal = document.getElementById('gameModal');
+  const gameFrame = document.getElementById('gameFrame');
+  const gameModalTitle = document.getElementById('gameModalTitle');
+  const closeGameBtn = document.getElementById('closeGameBtn');
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      const url = card.getAttribute('data-url');
+      const name = card.querySelector('.name').textContent;
+      gameModalTitle.textContent = name;
+      gameFrame.src = url;
+      gameModal.classList.add('open');
+    });
+  });
+
+  closeGameBtn.addEventListener('click', () => {
+    gameModal.classList.remove('open');
+    gameFrame.src = ''; // останавливаем игру
+  });
+
+  // Закрытие по клику на фон
+  gameModal.addEventListener('click', (e) => {
+    if (e.target === gameModal) {
+      gameModal.classList.remove('open');
+      gameFrame.src = '';
+    }
+  });
 
   // ====================== CHAT ======================
   const STORAGE_NICK = 'ascapha_chat_nick';
@@ -416,13 +577,11 @@
     const text = chatInput.value.trim();
     if (!text || !currentNick) return;
 
-    const msg = {
+    messagesRef.push({
       nick: currentNick,
       text: text,
       time: new Date().toISOString()
-    };
-
-    messagesRef.push(msg);
+    });
     chatInput.value = '';
   }
 
@@ -482,10 +641,16 @@
     messagesArea.scrollTop = messagesArea.scrollHeight;
   }
 
-  // Слушаем сообщения в реальном времени
   messagesRef.on('value', (snapshot) => {
-    const data = snapshot.val() || {};
-    renderMessages(data);
+    renderMessages(snapshot.val() || {});
+  });
+
+  // ===== PANIC BUTTON (клавиша X) =====
+  document.addEventListener('keydown', function(e) {
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+    if (e.key === 'x' || e.key === 'X') {
+      window.location.href = 'https://www.google.com';
+    }
   });
 </script>
 </body>
