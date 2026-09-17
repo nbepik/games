@@ -7,13 +7,14 @@
 
 <style>
   :root {
-    --bg-gradient: linear-gradient(135deg, #2e1065 0%, #581c87 50%, #6b21a8 100%);
-    --card-bg: rgba(255, 255, 255, 0.08);
-    --card-hover-bg: rgba(255, 255, 255, 0.15);
-    --border-color: rgba(255, 255, 255, 0.15);
-    --text-primary: #ffffff;
-    --text-secondary: #e9d5ff;
-    --accent: #a855f7;
+    --bg-color: #07040d;
+    --card-bg: rgba(20, 10, 35, 0.75);
+    --border-glow: #a855f7;
+    --border-active: #e0aaff;
+    --text-main: #ffffff;
+    --text-muted: #c084fc;
+    --neon-shadow: rgba(168, 85, 247, 0.4);
+    --strong-glow: rgba(192, 132, 252, 0.8);
   }
 
   * {
@@ -24,238 +25,317 @@
 
   body {
     min-height: 100vh;
-    background: var(--bg-gradient);
+    background: radial-gradient(circle at top center, #1e0533 0%, var(--bg-color) 70%);
     background-attachment: fixed;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    color: var(--text-primary);
-    padding: 30px 20px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* --- AUTHENTICATION OVERLAY --- */
+  #authOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 4, 13, 0.95);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .auth-box {
+    background: var(--card-bg);
+    border: 2px solid var(--border-glow);
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 0 25px var(--neon-shadow), inset 0 0 15px rgba(168, 85, 247, 0.2);
+    text-align: center;
+    max-width: 360px;
+    width: 90%;
+  }
+
+  .auth-box h2 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    text-shadow: 0 0 10px var(--border-glow);
+  }
+
+  .auth-box p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  .auth-input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid var(--border-glow);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    transition: 0.3s;
+  }
+
+  .auth-input:focus {
+    border-color: var(--border-active);
+    box-shadow: 0 0 15px var(--strong-glow);
+  }
+
+  .auth-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #7e22ce, #a855f7);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--neon-shadow);
+    transition: 0.3s;
+  }
+
+  .auth-btn:hover {
+    box-shadow: 0 0 25px var(--strong-glow);
+    transform: translateY(-2px);
+  }
+
+  #errorMsg {
+    color: #ff4d4d;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* --- MAIN CONTENT CONTAINER --- */
+  #appContent {
+    display: none;
+    width: 100%;
+    max-width: 1300px;
+    padding: 40px 20px;
   }
 
   header {
     text-align: center;
-    max-width: 800px;
-    margin: 0 auto 30px;
+    margin-bottom: 40px;
   }
 
   h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    margin-bottom: 8px;
-  }
-
-  p.subtitle {
-    color: var(--text-secondary);
-    font-size: 1rem;
-    margin-bottom: 20px;
-  }
-
-  .search-container {
-    max-width: 450px;
-    margin: 0 auto;
-  }
-
-  .search-input {
-    width: 100%;
-    padding: 12px 20px;
-    border-radius: 50px;
-    border: 1px solid var(--border-color);
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(8px);
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 1px;
     color: #fff;
-    font-size: 0.95rem;
-    outline: none;
-    transition: all 0.3s ease;
+    text-shadow: 0 0 10px var(--border-glow), 0 0 30px var(--border-glow);
+    margin-bottom: 5px;
   }
 
-  .search-input::placeholder {
-    color: #c084fc;
-  }
-
-  .search-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
-    background: rgba(0, 0, 0, 0.4);
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
   }
 
   .games {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
-    max-width: 1300px;
-    margin: 0 auto;
+    gap: 25px;
   }
 
   .card {
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 18px;
     overflow: hidden;
     text-decoration: none;
-    color: var(--text-primary);
-    backdrop-filter: blur(10px);
+    color: var(--text-main);
     display: flex;
     flex-direction: column;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
-                box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                background-color 0.25s ease;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card:hover {
-    transform: translateY(-6px);
-    background: var(--card-hover-bg);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--border-active);
+    box-shadow: 0 0 20px var(--neon-shadow), 0 0 40px rgba(168, 85, 247, 0.2);
   }
 
   .img-wrapper {
     width: 100%;
-    height: 130px;
-    background: rgba(0, 0, 0, 0.2);
+    height: 140px;
     overflow: hidden;
-    position: relative;
+    background: rgba(0, 0, 0, 0.4);
   }
 
   .card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
   }
 
   .card:hover img {
-    transform: scale(1.08);
+    transform: scale(1.1);
   }
 
   .name {
     padding: 14px 10px;
     text-align: center;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.95rem;
-    line-height: 1.2;
-    margin: auto 0;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
   }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Fih School!</h1>
-  <p class="subtitle">mygames by nbepik</p>
-  <div class="search-container">
-    <input type="text" id="search" class="search-input" placeholder="Search games..." onkeyup="filterGames()">
+<!-- LOCK SCREEN OVERLAY -->
+<div id="authOverlay">
+  <div class="auth-box">
+    <h2>RESTRICTED ACCESS</h2>
+    <p>Enter the master key to continue</p>
+    <input type="password" id="passInput" class="auth-input" placeholder="••••••••" onkeydown="checkEnter(event)">
+    <button class="auth-btn" onclick="authenticate()">UNLOCK</button>
+    <div id="errorMsg">Incorrect password! Try again.</div>
   </div>
-</header>
+</div>
 
-<main class="games" id="gamesGrid">
-  <a class="card" href="https://spacewaves2.io" target="_blank">
-    <div class="img-wrapper"><img src="spacewaves.jpg" alt="Space Waves"></div>
-    <div class="name">Space Waves</div>
-  </a>
+<!-- MAIN DASHBOARD -->
+<div id="appContent">
+  <header>
+    <h1>Fih School!</h1>
+    <div class="subtitle">mygames by nbepik</div>
+  </header>
 
-  <a class="card" href="https://blockblast.game/" target="_blank">
-    <div class="img-wrapper"><img src="blockblast.jpg" alt="Block Blast"></div>
-    <div class="name">Block Blast</div>
-  </a>
+  <div class="games">
+    <a class="card" href="https://spacewaves2.io" target="_blank">
+      <div class="img-wrapper"><img src="spacewaves.jpg" alt="Space Waves"></div>
+      <div class="name">Space Waves</div>
+    </a>
 
-  <a class="card" href="https://www.miniplay.com/game/aquapark-io" target="_blank">
-    <div class="img-wrapper"><img src="aquapark.jpg" alt="Aquapark.io"></div>
-    <div class="name">Aquapark.io</div>
-  </a>
+    <a class="card" href="https://blockblast.game/" target="_blank">
+      <div class="img-wrapper"><img src="blockblast.jpg" alt="Block Blast"></div>
+      <div class="name">Block Blast</div>
+    </a>
 
-  <a class="card" href="https://manrunner2048.io/" target="_blank">
-    <div class="img-wrapper"><img src="runner2048.jpg" alt="Runner 2048"></div>
-    <div class="name">Runner 2048</div>
-  </a>
+    <a class="card" href="https://www.miniplay.com/game/aquapark-io" target="_blank">
+      <div class="img-wrapper"><img src="aquapark.jpg" alt="Aquapark.io"></div>
+      <div class="name">Aquapark.io</div>
+    </a>
 
-  <a class="card" href="https://games.voodoo.io/paperio2" target="_blank">
-    <div class="img-wrapper"><img src="paperio2.jpg" alt="Paper.io 2"></div>
-    <div class="name">Paper.io 2</div>
-  </a>
+    <a class="card" href="https://manrunner2048.io/" target="_blank">
+      <div class="img-wrapper"><img src="runner2048.jpg" alt="Runner 2048"></div>
+      <div class="name">Runner 2048</div>
+    </a>
 
-  <a class="card" href="http://slither.com/io" target="_blank">
-    <div class="img-wrapper"><img src="slither.jpg" alt="Slither.io"></div>
-    <div class="name">Slither.io</div>
-  </a>
+    <a class="card" href="https://games.voodoo.io/paperio2" target="_blank">
+      <div class="img-wrapper"><img src="paperio2.jpg" alt="Paper.io 2"></div>
+      <div class="name">Paper.io 2</div>
+    </a>
 
-  <a class="card" href="https://www.miniplay.com/game/noob-snake-2048" target="_blank">
-    <div class="img-wrapper"><img src="noob2048.jpg" alt="Noob Snake 2048"></div>
-    <div class="name">Noob Snake 2048</div>
-  </a>
+    <a class="card" href="http://slither.com/io" target="_blank">
+      <div class="img-wrapper"><img src="slither.jpg" alt="Slither.io"></div>
+      <div class="name">Slither.io</div>
+    </a>
 
-  <a class="card" href="https://www.1001games.com/arcade/stack-fall" target="_blank">
-    <div class="img-wrapper"><img src="stackfall.jpg" alt="Stack Fall"></div>
-    <div class="name">Stack Fall</div>
-  </a>
+    <a class="card" href="https://www.miniplay.com/game/noob-snake-2048" target="_blank">
+      <div class="img-wrapper"><img src="noob2048.jpg" alt="Noob Snake 2048"></div>
+      <div class="name">Noob Snake 2048</div>
+    </a>
 
-  <a class="card" href="https://www.worldguessr.com/de" target="_blank">
-    <div class="img-wrapper"><img src="worldguessr.jpg" alt="WorldGuessr"></div>
-    <div class="name">WorldGuessr</div>
-  </a>
+    <a class="card" href="https://www.1001games.com/arcade/stack-fall" target="_blank">
+      <div class="img-wrapper"><img src="stackfall.jpg" alt="Stack Fall"></div>
+      <div class="name">Stack Fall</div>
+    </a>
 
-  <a class="card" href="https://geometry-games.io/dig-out-of-prison" target="_blank">
-    <div class="img-wrapper"><img src="digout.jpg" alt="Dig Out Of Prison"></div>
-    <div class="name">Dig Out Of Prison</div>
-  </a>
+    <a class="card" href="https://www.worldguessr.com/de" target="_blank">
+      <div class="img-wrapper"><img src="worldguessr.jpg" alt="WorldGuessr"></div>
+      <div class="name">WorldGuessr</div>
+    </a>
 
-  <a class="card" href="https://thiefpuzzle.io/" target="_blank">
-    <div class="img-wrapper"><img src="thiefpuzzle.jpg" alt="Thief Puzzle"></div>
-    <div class="name">Thief Puzzle</div>
-  </a>
+    <a class="card" href="https://geometry-games.io/dig-out-of-prison" target="_blank">
+      <div class="img-wrapper"><img src="digout.jpg" alt="Dig Out Of Prison"></div>
+      <div class="name">Dig Out Of Prison</div>
+    </a>
 
-  <a class="card" href="https://ozogames.com/game/poxel-io/" target="_blank">
-    <div class="img-wrapper"><img src="poxelio.jpg" alt="Poxel.io"></div>
-    <div class="name">Poxel.io</div>
-  </a>
+    <a class="card" href="https://thiefpuzzle.io/" target="_blank">
+      <div class="img-wrapper"><img src="thiefpuzzle.jpg" alt="Thief Puzzle"></div>
+      <div class="name">Thief Puzzle</div>
+    </a>
 
-  <a class="card" href="https://agar.io/#ffa" target="_blank">
-    <div class="img-wrapper"><img src="agario.jpg" alt="Agar.io"></div>
-    <div class="name">Agar.io</div>
-  </a>
+    <a class="card" href="https://ozogames.com/game/poxel-io/" target="_blank">
+      <div class="img-wrapper"><img src="poxelio.jpg" alt="Poxel.io"></div>
+      <div class="name">Poxel.io</div>
+    </a>
 
-  <a class="card" href="https://geometrylitepc.io/" target="_blank">
-    <div class="img-wrapper"><img src="geometrydash.jpg" alt="Geometry Dash"></div>
-    <div class="name">Geometry Dash</div>
-  </a>
+    <a class="card" href="https://agar.io/#ffa" target="_blank">
+      <div class="img-wrapper"><img src="agario.jpg" alt="Agar.io"></div>
+      <div class="name">Agar.io</div>
+    </a>
 
-  <a class="card" href="https://minecraftforfreex.com/eaglercraft/" target="_blank">
-    <div class="img-wrapper"><img src="minecraft.jpg" alt="Minecraft"></div>
-    <div class="name">Minecraft</div>
-  </a>
+    <a class="card" href="https://geometrylitepc.io/" target="_blank">
+      <div class="img-wrapper"><img src="geometrydash.jpg" alt="Geometry Dash"></div>
+      <div class="name">Geometry Dash</div>
+    </a>
 
-  <a class="card" href="https://playhop.com/de/app/granny-original-259805" target="_blank">
-    <div class="img-wrapper"><img src="granny.jpg" alt="Granny"></div>
-    <div class="name">Granny</div>
-  </a>
+    <a class="card" href="https://minecraftforfreex.com/eaglercraft/" target="_blank">
+      <div class="img-wrapper"><img src="minecraft.jpg" alt="Minecraft"></div>
+      <div class="name">Minecraft</div>
+    </a>
 
-  <a class="card" href="https://playhop.com/de/app/baldi-142549/#ffa" target="_blank">
-    <div class="img-wrapper"><img src="baldi.jpg" alt="Baldi"></div>
-    <div class="name">Baldi</div>
-  </a>
+    <a class="card" href="https://playhop.com/de/app/granny-original-259805" target="_blank">
+      <div class="img-wrapper"><img src="granny.jpg" alt="Granny"></div>
+      <div class="name">Granny</div>
+    </a>
 
-  <a class="card" href="https://cornhub.website/#ffa" target="_blank">
-    <div class="img-wrapper"><img src="corn.jpg" alt="CornHub"></div>
-    <div class="name">CornHub</div>
-  </a>
+    <a class="card" href="https://playhop.com/de/app/baldi-142549/#ffa" target="_blank">
+      <div class="img-wrapper"><img src="baldi.jpg" alt="Baldi"></div>
+      <div class="name">Baldi</div>
+    </a>
 
-  <a class="card" href="https://ozgames.io/#ffa" target="_blank">
-    <div class="img-wrapper"><img src="ozgames.jpg" alt="Ozgames"></div>
-    <div class="name">Ozgames</div>
-  </a>
-</main>
+    <a class="card" href="https://cornhub.website/#ffa" target="_blank">
+      <div class="img-wrapper"><img src="corn.jpg" alt="CornHub"></div>
+      <div class="name">CornHub</div>
+    </a>
+
+    <a class="card" href="https://ozgames.io/#ffa" target="_blank">
+      <div class="img-wrapper"><img src="ozgames.jpg" alt="Ozgames"></div>
+      <div class="name">Ozgames</div>
+    </a>
+  </div>
+</div>
 
 <script>
-function filterGames() {
-  const query = document.getElementById('search').value.toLowerCase();
-  const cards = document.querySelectorAll('.card');
-  
-  cards.forEach(card => {
-    const name = card.querySelector('.name').textContent.toLowerCase();
-    card.style.display = name.includes(query) ? 'flex' : 'none';
-  });
-}
+  // CHANGE YOUR DESIRED PASSWORD HERE:
+  const CORRECT_PASSWORD = "bypass123";
+
+  function authenticate() {
+    const input = document.getElementById('passInput').value;
+    const errorMsg = document.getElementById('errorMsg');
+    
+    if (input === CORRECT_PASSWORD) {
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+    } else {
+      errorMsg.style.display = 'block';
+      document.getElementById('passInput').value = '';
+    }
+  }
+
+  function checkEnter(event) {
+    if (event.key === 'Enter') {
+      authenticate();
+    }
+  }
 </script>
 
 </body>
