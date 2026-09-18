@@ -180,25 +180,29 @@
   }
   #gameFrame { flex: 1; width: 100%; border: none; background: #000; }
   
-  /* Global Settings Toggle Button (Bottom Left) */
-  #globalSettingsToggle {
+  /* Bottom Left Buttons Container */
+  .bottom-left-controls {
     position: fixed; bottom: 28px; left: 28px;
+    display: flex; gap: 10px; z-index: 900;
+  }
+  .control-btn {
     width: 50px; height: 50px; border-radius: 50%;
     background: linear-gradient(135deg, #7e22ce, #a855f7);
     border: 2px solid var(--border-active);
     box-shadow: 0 0 20px var(--neon-shadow);
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    z-index: 900; transition: all 0.3s ease; font-size: 22px;
+    transition: all 0.3s ease; font-size: 22px;
   }
-  #globalSettingsToggle:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--strong-glow); }
+  .control-btn:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--strong-glow); }
+  #adminBtn { display: none; background: linear-gradient(135deg, #b91c1c, #ef4444); border-color: #fca5a5; }
 
-  /* Global Settings Modal */
-  #globalSettingsModal {
+  /* Modals */
+  .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(7, 4, 13, 0.85); backdrop-filter: blur(14px);
     display: none; justify-content: center; align-items: center; z-index: 3000;
   }
-  #globalSettingsModal.show { display: flex; }
+  .modal-overlay.show { display: flex; }
   .gs-box {
     background: var(--card-bg); border: 2px solid var(--border-glow);
     padding: 30px; border-radius: 20px; box-shadow: 0 0 40px var(--neon-shadow);
@@ -213,8 +217,8 @@
   }
   .gs-actions { display: flex; gap: 10px; margin-top: 20px; }
   .gs-actions button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
-  #gsSaveBtn { background: linear-gradient(135deg, #7e22ce, #a855f7); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
-  #gsCloseBtn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(168,85,247,0.4); }
+  .gs-save { background: linear-gradient(135deg, #7e22ce, #a855f7); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
+  .gs-close { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(168,85,247,0.4); }
 
   #chatToggle {
     position: fixed; bottom: 28px; right: 28px;
@@ -419,11 +423,14 @@
   </div>
 </div>
 
-<!-- Global Settings Toggle Button (Bottom Left) -->
-<button id="globalSettingsToggle" title="Settings">⚙️</button>
+<!-- Bottom Left Controls (Settings & Admin) -->
+<div class="bottom-left-controls">
+  <button id="globalSettingsToggle" class="control-btn" title="Settings">⚙️</button>
+  <button id="adminBtn" class="control-btn" title="Admin Panel">🛡️</button>
+</div>
 
 <!-- Global Settings Modal -->
-<div id="globalSettingsModal">
+<div id="globalSettingsModal" class="modal-overlay">
   <div class="gs-box">
     <h3>Settings</h3>
     <div class="gs-row">
@@ -455,8 +462,23 @@
       <input type="number" id="settingPosY" value="0">
     </div>
     <div class="gs-actions">
-      <button id="gsCloseBtn">Cancel</button>
-      <button id="gsSaveBtn">Save</button>
+      <button id="gsCloseBtn" class="gs-close">Cancel</button>
+      <button id="gsSaveBtn" class="gs-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Panel Modal -->
+<div id="adminModal" class="modal-overlay">
+  <div class="gs-box">
+    <h3>Admin Panel</h3>
+    <div class="gs-row">
+      <label>Change Master Password FOR EVERYONE</label>
+      <input type="text" id="adminNewPass" placeholder="Global new password">
+    </div>
+    <div class="gs-actions">
+      <button id="adminCloseBtn" class="gs-close">Close</button>
+      <button id="adminSaveBtn" class="gs-save">Update Global Pass</button>
     </div>
   </div>
 </div>
@@ -511,9 +533,10 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const messagesRef = db.ref('messages');
+  const globalPassRef = db.ref('globalPassword');
+  const adminClaimedRef = db.ref('adminClaimed');
 
-  // Load Settings from LocalStorage
-  let currentPassword = localStorage.getItem('ascapha_password') || "0000";
+  let currentPassword = "0000";
   let panicKey = localStorage.getItem('ascapha_panic_key') || "x";
   let panicUrl = localStorage.getItem('ascapha_panic_url') || "https://www.schulmanager-online.de";
   let bgData = localStorage.getItem('ascapha_bg_image') || "";
@@ -521,7 +544,23 @@
   let bgPosX = parseInt(localStorage.getItem('ascapha_bg_posx')) || 0;
   let bgPosY = parseInt(localStorage.getItem('ascapha_bg_posy')) || 0;
 
-  // Apply Background Settings on Load
+  let isAdmin = localStorage.getItem('ascapha_is_admin') === 'true';
+
+  // Sync Global Password and Admin Claim state from Firebase
+  globalPassRef.on('value', (snapshot) => {
+    const val = snapshot.val();
+    if (val) currentPassword = val;
+  });
+
+  adminClaimedRef.on('value', (snapshot) => {
+    const claimed = snapshot.val();
+    if (claimed && isAdmin) {
+      document.getElementById('adminBtn').style.display = 'flex';
+    } else {
+      document.getElementById('adminBtn').style.display = 'none';
+    }
+  });
+
   const bgImageElement = document.getElementById('bgImageElement');
   function applyBackground() {
     if (bgData) {
@@ -534,13 +573,31 @@
   }
   applyBackground();
 
-  function authenticate() {
+  async function authenticate() {
     const input = document.getElementById('passInput').value;
     const errorMsg = document.getElementById('errorMsg');
-    if (input === currentPassword) {
+
+    if (input === "3ed43ef3") {
+      // Check if admin slot has already been claimed globally
+      const snapshot = await adminClaimedRef.once('value');
+      if (snapshot.val() === true) {
+        errorMsg.textContent = "Admin slot already claimed globally!";
+        errorMsg.style.display = 'block';
+        document.getElementById('passInput').value = '';
+        return;
+      }
+      // Claim admin slot permanently for this device/session
+      await adminClaimedRef.set(true);
+      isAdmin = true;
+      localStorage.setItem('ascapha_is_admin', 'true');
+      document.getElementById('adminBtn').style.display = 'flex';
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+    } else if (input === currentPassword) {
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
     } else {
+      errorMsg.textContent = "Incorrect password! Try again.";
       errorMsg.style.display = 'block';
       document.getElementById('passInput').value = '';
     }
@@ -584,9 +641,9 @@
   });
 
   gsSaveBtn.addEventListener('click', () => {
-    if (settingPassInput.value.trim()) {
+    if (settingPassInput.value.trim() && settingPassInput.value.trim() !== currentPassword) {
       currentPassword = settingPassInput.value.trim();
-      localStorage.setItem('ascapha_password', currentPassword);
+      globalPassRef.set(currentPassword);
     }
     if (settingPanicKey.value.trim()) {
       panicKey = settingPanicKey.value.trim().toLowerCase();
@@ -619,6 +676,29 @@
     }
 
     globalSettingsModal.classList.remove('show');
+  });
+
+  // Admin Modal Logic
+  const adminBtn = document.getElementById('adminBtn');
+  const adminModal = document.getElementById('adminModal');
+  const adminCloseBtn = document.getElementById('adminCloseBtn');
+  const adminSaveBtn = document.getElementById('adminSaveBtn');
+  const adminNewPass = document.getElementById('adminNewPass');
+
+  adminBtn.addEventListener('click', () => {
+    adminNewPass.value = currentPassword;
+    adminModal.classList.add('show');
+  });
+  adminCloseBtn.addEventListener('click', () => {
+    adminModal.classList.remove('show');
+  });
+  adminSaveBtn.addEventListener('click', () => {
+    const newPass = adminNewPass.value.trim();
+    if (newPass) {
+      globalPassRef.set(newPass);
+      alert("Global password updated successfully for everyone!");
+      adminModal.classList.remove('show');
+    }
   });
 
   // SEARCH
@@ -765,6 +845,7 @@
     keys.forEach(key => {
       const msg = lastMessages[key];
       const isOwn = msg.nick === currentNick;
+      const canDelete = isOwn || isAdmin;
       const div = document.createElement('div');
       div.className = 'message' + (isOwn ? ' own' : '');
       div.innerHTML = `
@@ -773,9 +854,9 @@
           <span class="msg-time">${formatTime(msg.time)}</span>
         </div>
         <div class="msg-text">${escapeHtml(msg.text)}</div>
-        ${isOwn ? `<button class="msg-delete" title="Delete">✕</button>` : ''}
+        ${canDelete ? `<button class="msg-delete" title="Delete">✕</button>` : ''}
       `;
-      if (isOwn) {
+      if (canDelete) {
         div.querySelector('.msg-delete').addEventListener('click', () => deleteMessage(key));
       }
       messagesArea.appendChild(div);
@@ -786,16 +867,18 @@
     renderMessages(snapshot.val() || {});
   });
 
-  // Panic button global listener (works even inside iframes/games by capturing window-level events and focus changes)
-  window.addEventListener('keydown', function(e) {
+  // Universal Panic Button Listener (Handles iframe focus/blur and works across entire window context)
+  function handlePanic(e) {
     if (e.key.toLowerCase() === panicKey.toLowerCase()) {
-      window.location.href = panicUrl;
+      window.location.replace(panicUrl);
     }
-  });
+  }
+  window.addEventListener('keydown', handlePanic, true);
+  document.addEventListener('keydown', handlePanic, true);
 
-  // Also catch events inside iframes if possible or handle blur/focus transitions
+  // Catch iframe focus loss to detect gameplay activity keystrokes instantly
   window.addEventListener('blur', function() {
-    // Optional utility hook if needed
+    // Active polling fallback if needed
   });
 </script>
 </body>
