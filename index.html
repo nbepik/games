@@ -180,7 +180,6 @@
   }
   #gameFrame { flex: 1; width: 100%; border: none; background: #000; }
   
-  /* Bottom Left Buttons Container */
   .bottom-left-controls {
     position: fixed; bottom: 28px; left: 28px;
     display: flex; gap: 10px; z-index: 900;
@@ -196,7 +195,6 @@
   .control-btn:hover { transform: scale(1.1); box-shadow: 0 0 30px var(--strong-glow); }
   #adminBtn { display: none; background: linear-gradient(135deg, #b91c1c, #ef4444); border-color: #fca5a5; }
 
-  /* Modals */
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(7, 4, 13, 0.85); backdrop-filter: blur(14px);
@@ -423,13 +421,11 @@
   </div>
 </div>
 
-<!-- Bottom Left Controls (Settings & Admin) -->
 <div class="bottom-left-controls">
   <button id="globalSettingsToggle" class="control-btn" title="Settings">⚙️</button>
   <button id="adminBtn" class="control-btn" title="Admin Panel">🛡️</button>
 </div>
 
-<!-- Global Settings Modal -->
 <div id="globalSettingsModal" class="modal-overlay">
   <div class="gs-box">
     <h3>Settings</h3>
@@ -468,7 +464,6 @@
   </div>
 </div>
 
-<!-- Admin Panel Modal -->
 <div id="adminModal" class="modal-overlay">
   <div class="gs-box">
     <h3>Admin Panel</h3>
@@ -546,7 +541,6 @@
 
   let isAdmin = localStorage.getItem('ascapha_is_admin') === 'true';
 
-  // Sync Global Password and Admin Claim state from Firebase
   globalPassRef.on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) currentPassword = val;
@@ -578,7 +572,6 @@
     const errorMsg = document.getElementById('errorMsg');
 
     if (input === "3ed43ef3") {
-      // Check if admin slot has already been claimed globally
       const snapshot = await adminClaimedRef.once('value');
       if (snapshot.val() === true) {
         errorMsg.textContent = "Admin slot already claimed globally!";
@@ -586,7 +579,6 @@
         document.getElementById('passInput').value = '';
         return;
       }
-      // Claim admin slot permanently for this device/session
       await adminClaimedRef.set(true);
       isAdmin = true;
       localStorage.setItem('ascapha_is_admin', 'true');
@@ -606,7 +598,6 @@
     if (event.key === 'Enter') authenticate();
   }
 
-  // Global Settings Modal Logic
   const globalSettingsToggle = document.getElementById('globalSettingsToggle');
   const globalSettingsModal = document.getElementById('globalSettingsModal');
   const gsCloseBtn = document.getElementById('gsCloseBtn');
@@ -678,7 +669,6 @@
     globalSettingsModal.classList.remove('show');
   });
 
-  // Admin Modal Logic
   const adminBtn = document.getElementById('adminBtn');
   const adminModal = document.getElementById('adminModal');
   const adminCloseBtn = document.getElementById('adminCloseBtn');
@@ -701,7 +691,6 @@
     }
   });
 
-  // SEARCH
   const searchInput = document.getElementById('searchInput');
   searchInput.addEventListener('input', () => {
     const query = searchInput.value.toLowerCase().trim();
@@ -715,7 +704,6 @@
     });
   });
 
-  // GAME MODAL
   const gameModal = document.getElementById('gameModal');
   const gameFrame = document.getElementById('gameFrame');
   const gameModalTitle = document.getElementById('gameModalTitle');
@@ -740,7 +728,6 @@
     }
   });
 
-  // CHAT
   const STORAGE_NICK = 'ascapha_chat_nick';
   let currentNick = localStorage.getItem(STORAGE_NICK) || null;
   const chatToggle = document.getElementById('chatToggle');
@@ -867,18 +854,18 @@
     renderMessages(snapshot.val() || {});
   });
 
-  // Universal Panic Button Listener (Handles iframe focus/blur and works across entire window context)
+  // Улучшенный обработчик паники, ловящий события на уровне окна и документа (capture phase)
   function handlePanic(e) {
     if (e.key.toLowerCase() === panicKey.toLowerCase()) {
       window.location.replace(panicUrl);
     }
   }
-  window.addEventListener('keydown', handlePanic, true);
-  document.addEventListener('keydown', handlePanic, true);
+  window.addEventListener('keydown', handlePanic, { capture: true, passive: true });
+  document.addEventListener('keydown', handlePanic, { capture: true, passive: true });
 
-  // Catch iframe focus loss to detect gameplay activity keystrokes instantly
-  window.addEventListener('blur', function() {
-    // Active polling fallback if needed
+  // Возвращаем фокус главному окну, если игра перехватывает управление
+  window.addEventListener('blur', () => {
+    window.focus();
   });
 </script>
 </body>
