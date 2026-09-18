@@ -73,7 +73,7 @@
   .auth-input:focus { border-color: var(--border-active); box-shadow: 0 0 15px var(--strong-glow); }
   .auth-btn {
     width: 100%; padding: 12px; border-radius: 10px; border: none;
-    background: linear-gradient(135deg, #7e22ce, #a855f7);
+    background: linear-gradient(135deg, var(--border-glow), var(--border-active));
     color: #fff; font-size: 1rem; font-weight: bold; cursor: pointer;
     box-shadow: 0 0 15px var(--neon-shadow); transition: 0.3s;
   }
@@ -121,7 +121,7 @@
   }
   .card {
     background: var(--card-bg); 
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    border: 1px solid var(--border-glow);
     border-radius: 16px; 
     color: var(--text-main);
     display: flex; 
@@ -137,7 +137,7 @@
     transform: translateY(-6px);
     border-color: var(--border-active);
     box-shadow: 0 0 20px var(--neon-shadow);
-    background: rgba(126, 34, 206, 0.25);
+    background: rgba(168, 85, 247, 0.2);
   }
   .card.hidden { display: none; }
   .name {
@@ -164,7 +164,7 @@
   }
   .game-modal-header {
     padding: 12px 18px;
-    background: linear-gradient(90deg, rgba(126, 34, 206, 0.5), rgba(168, 85, 247, 0.3));
+    background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(224, 170, 255, 0.2));
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(168, 85, 247, 0.4);
   }
@@ -180,13 +180,43 @@
   }
   #gameFrame { flex: 1; width: 100%; border: none; background: #000; }
   
+  /* Кнопка закрытия посередине снизу экрана игры */
+  #bottomCloseGameContainer {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2100;
+    display: none;
+  }
+  #bottomCloseGameContainer.open { display: block; }
+  .bottom-exit-btn {
+    padding: 10px 24px;
+    border-radius: 12px;
+    border: 2px solid #ff6b6b;
+    background: rgba(15, 8, 28, 0.9);
+    color: #ff6b6b;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+    backdrop-filter: blur(10px);
+    transition: 0.3s;
+  }
+  .bottom-exit-btn:hover {
+    background: #ff6b6b;
+    color: #fff;
+    box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+    transform: translateY(-2px);
+  }
+
   .bottom-left-controls {
     position: fixed; bottom: 28px; left: 28px;
     display: flex; gap: 10px; z-index: 900;
   }
   .control-btn {
     width: 50px; height: 50px; border-radius: 50%;
-    background: linear-gradient(135deg, #7e22ce, #a855f7);
+    background: linear-gradient(135deg, var(--border-glow), var(--border-active));
     border: 2px solid var(--border-active);
     box-shadow: 0 0 20px var(--neon-shadow);
     cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -215,13 +245,13 @@
   }
   .gs-actions { display: flex; gap: 10px; margin-top: 20px; }
   .gs-actions button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
-  .gs-save { background: linear-gradient(135deg, #7e22ce, #a855f7); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
+  .gs-save { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
   .gs-close { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(168,85,247,0.4); }
 
   #chatToggle {
     position: fixed; bottom: 28px; right: 28px;
     width: 64px; height: 64px; border-radius: 50%;
-    background: linear-gradient(135deg, #7e22ce, #a855f7);
+    background: linear-gradient(135deg, var(--border-glow), var(--border-active));
     border: 2px solid var(--border-active);
     box-shadow: 0 0 25px var(--neon-shadow), 0 0 40px rgba(168, 85, 247, 0.3);
     cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -241,7 +271,7 @@
   #chatPanel.open { display: flex; }
   .chat-header {
     padding: 16px 18px;
-    background: linear-gradient(90deg, rgba(126, 34, 206, 0.4), rgba(168, 85, 247, 0.25));
+    background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(224, 170, 255, 0.15));
     border-bottom: 1px solid rgba(168, 85, 247, 0.4);
     display: flex; justify-content: space-between; align-items: center;
   }
@@ -269,7 +299,7 @@
     animation: fadeIn 0.3s ease;
   }
   .message.own {
-    background: rgba(126, 34, 206, 0.25);
+    background: rgba(168, 85, 247, 0.2);
     border-color: rgba(168, 85, 247, 0.5);
   }
   .msg-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.78rem; }
@@ -294,7 +324,7 @@
   #chatInput:focus { box-shadow: 0 0 12px var(--neon-shadow); }
   #sendBtn {
     padding: 0 18px; border-radius: 12px; border: none;
-    background: linear-gradient(135deg, #7e22ce, #a855f7);
+    background: linear-gradient(135deg, var(--border-glow), var(--border-active));
     color: #fff; font-weight: bold; cursor: pointer; transition: 0.25s;
   }
   #sendBtn:hover { box-shadow: 0 0 15px var(--strong-glow); }
@@ -327,7 +357,7 @@
   }
   .settings-actions { margin-top: auto; display: flex; gap: 10px; }
   .settings-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
-  #saveNickBtn { background: linear-gradient(135deg, #7e22ce, #a855f7); color: #fff; }
+  #saveNickBtn { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; }
   #closeSettingsBtn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(168,85,247,0.4); }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
@@ -421,6 +451,11 @@
   </div>
 </div>
 
+<!-- Кнопка закрытия посередине снизу экрана игры -->
+<div id="bottomCloseGameContainer">
+  <button class="bottom-exit-btn" id="bottomCloseGameBtn">✕ Закрыть игру</button>
+</div>
+
 <div class="bottom-left-controls">
   <button id="globalSettingsToggle" class="control-btn" title="Settings">⚙️</button>
   <button id="adminBtn" class="control-btn" title="Admin Panel">🛡️</button>
@@ -432,6 +467,10 @@
     <div class="gs-row">
       <label>Master Password</label>
       <input type="text" id="settingPassInput" placeholder="New password">
+    </div>
+    <div class="gs-row">
+      <label>Accent Color (Theme)</label>
+      <input type="color" id="settingAccentColor" value="#a855f7" style="height: 40px; cursor: pointer;">
     </div>
     <div class="gs-row">
       <label>Panic Key (e.g. x, Escape, etc.)</label>
@@ -538,8 +577,19 @@
   let bgScale = parseFloat(localStorage.getItem('ascapha_bg_scale')) || 1;
   let bgPosX = parseInt(localStorage.getItem('ascapha_bg_posx')) || 0;
   let bgPosY = parseInt(localStorage.getItem('ascapha_bg_posy')) || 0;
+  let accentColor = localStorage.getItem('ascapha_accent_color') || "#a855f7";
 
   let isAdmin = localStorage.getItem('ascapha_is_admin') === 'true';
+
+  // Применяем сохраненный цвет темы
+  function applyAccentColor(hex) {
+    document.documentElement.style.setProperty('--border-glow', hex);
+    document.documentElement.style.setProperty('--border-active', hex);
+    document.documentElement.style.setProperty('--text-muted', hex);
+    document.documentElement.style.setProperty('--neon-shadow', hex + '66'); // с прозрачностью
+    document.documentElement.style.setProperty('--strong-glow', hex + 'cc');
+  }
+  applyAccentColor(accentColor);
 
   globalPassRef.on('value', (snapshot) => {
     const val = snapshot.val();
@@ -604,6 +654,7 @@
   const gsSaveBtn = document.getElementById('gsSaveBtn');
   
   const settingPassInput = document.getElementById('settingPassInput');
+  const settingAccentColor = document.getElementById('settingAccentColor');
   const settingPanicKey = document.getElementById('settingPanicKey');
   const settingPanicUrl = document.getElementById('settingPanicUrl');
   const settingBgFile = document.getElementById('settingBgFile');
@@ -614,6 +665,7 @@
 
   globalSettingsToggle.addEventListener('click', () => {
     settingPassInput.value = currentPassword;
+    settingAccentColor.value = accentColor;
     settingPanicKey.value = panicKey;
     settingPanicUrl.value = panicUrl;
     settingScale.value = bgScale;
@@ -636,6 +688,10 @@
       currentPassword = settingPassInput.value.trim();
       globalPassRef.set(currentPassword);
     }
+    accentColor = settingAccentColor.value;
+    localStorage.setItem('ascapha_accent_color', accentColor);
+    applyAccentColor(accentColor);
+
     if (settingPanicKey.value.trim()) {
       panicKey = settingPanicKey.value.trim().toLowerCase();
       localStorage.setItem('ascapha_panic_key', panicKey);
@@ -708,23 +764,36 @@
   const gameFrame = document.getElementById('gameFrame');
   const gameModalTitle = document.getElementById('gameModalTitle');
   const closeGameBtn = document.getElementById('closeGameBtn');
+  const bottomCloseGameContainer = document.getElementById('bottomCloseGameContainer');
+  const bottomCloseGameBtn = document.getElementById('bottomCloseGameBtn');
+
+  function openGame(url, name) {
+    gameModalTitle.textContent = name;
+    gameFrame.src = url;
+    gameModal.classList.add('open');
+    bottomCloseGameContainer.classList.add('open');
+  }
+
+  function closeGame() {
+    gameModal.classList.remove('open');
+    bottomCloseGameContainer.classList.remove('open');
+    gameFrame.src = '';
+  }
+
   document.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', () => {
       const url = card.getAttribute('data-url');
       const name = card.querySelector('.name').textContent;
-      gameModalTitle.textContent = name;
-      gameFrame.src = url;
-      gameModal.classList.add('open');
+      openGame(url, name);
     });
   });
-  closeGameBtn.addEventListener('click', () => {
-    gameModal.classList.remove('open');
-    gameFrame.src = '';
-  });
+
+  closeGameBtn.addEventListener('click', closeGame);
+  bottomCloseGameBtn.addEventListener('click', closeGame);
+  
   gameModal.addEventListener('click', (e) => {
     if (e.target === gameModal) {
-      gameModal.classList.remove('open');
-      gameFrame.src = '';
+      closeGame();
     }
   });
 
@@ -853,40 +922,6 @@
   messagesRef.on('value', (snapshot) => {
     renderMessages(snapshot.val() || {});
   });
-
-  // Улучшенный обработчик паники с поддержкой iframe (обход захвата фокуса игрой)
-  function handlePanic(e) {
-    if (e.key && e.key.toLowerCase() === panicKey.toLowerCase()) {
-      window.location.replace(panicUrl);
-    }
-  }
-  window.addEventListener('keydown', handlePanic, { capture: true, passive: true });
-  document.addEventListener('keydown', handlePanic, { capture: true, passive: true });
-
-  function hookIframes() {
-    document.querySelectorAll('iframe').forEach(frame => {
-      try {
-        const frameWindow = frame.contentWindow;
-        if (frameWindow && !frameWindow.datasetPanicHooked) {
-          frameWindow.datasetPanicHooked = true;
-          frameWindow.addEventListener('keydown', (e) => {
-            if (e.key && e.key.toLowerCase() === panicKey.toLowerCase()) {
-              window.location.replace(panicUrl);
-            }
-          }, { capture: true, passive: true });
-        }
-      } catch (err) {}
-    });
-  }
-  setInterval(hookIframes, 1000);
-
-  window.addEventListener('blur', () => {
-    setTimeout(() => {
-      if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-        window.focus();
-      }
-    }, 10);
-  }, true);
 </script>
 </body>
 </html>
