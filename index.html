@@ -58,7 +58,7 @@
     border: 2px solid var(--border-glow);
     padding: 40px 30px;
     border-radius: 20px;
-    box-shadow: 0 0 25px var(--neon-shadow), inset 0 0 15px rgba(168, 85, 247, 0.2);
+    box-shadow: 0 0 25px var(--neon-shadow), inset 0 0 15px var(--neon-shadow);
     text-align: center;
     max-width: 360px; width: 90%;
   }
@@ -137,7 +137,7 @@
     transform: translateY(-6px);
     border-color: var(--border-active);
     box-shadow: 0 0 20px var(--neon-shadow);
-    background: rgba(168, 85, 247, 0.2);
+    background: var(--neon-shadow);
   }
   .card.hidden { display: none; }
   .name {
@@ -164,9 +164,9 @@
   }
   .game-modal-header {
     padding: 12px 18px;
-    background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(224, 170, 255, 0.2));
+    background: linear-gradient(90deg, var(--neon-shadow), rgba(255, 255, 255, 0.05));
     display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid rgba(168, 85, 247, 0.4);
+    border-bottom: 1px solid var(--border-glow);
   }
   .game-modal-title { font-weight: 700; font-size: 1.1rem; text-shadow: 0 0 8px var(--border-glow); }
   #closeGameBtn {
@@ -180,7 +180,6 @@
   }
   #gameFrame { flex: 1; width: 100%; border: none; background: #000; }
   
-  /* Кнопка закрытия посередине снизу экрана игры */
   #bottomCloseGameContainer {
     position: fixed;
     bottom: 20px;
@@ -193,20 +192,20 @@
   .bottom-exit-btn {
     padding: 10px 24px;
     border-radius: 12px;
-    border: 2px solid #ff6b6b;
+    border: 2px solid var(--border-glow);
     background: rgba(15, 8, 28, 0.9);
-    color: #ff6b6b;
+    color: var(--text-main);
     font-size: 0.95rem;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 0 20px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 0 20px var(--neon-shadow);
     backdrop-filter: blur(10px);
     transition: 0.3s;
   }
   .bottom-exit-btn:hover {
-    background: #ff6b6b;
+    background: var(--border-glow);
     color: #fff;
-    box-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+    box-shadow: 0 0 30px var(--strong-glow);
     transform: translateY(-2px);
   }
 
@@ -246,14 +245,14 @@
   .gs-actions { display: flex; gap: 10px; margin-top: 20px; }
   .gs-actions button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
   .gs-save { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
-  .gs-close { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(168,85,247,0.4); }
+  .gs-close { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-glow); }
 
   #chatToggle {
     position: fixed; bottom: 28px; right: 28px;
     width: 64px; height: 64px; border-radius: 50%;
     background: linear-gradient(135deg, var(--border-glow), var(--border-active));
     border: 2px solid var(--border-active);
-    box-shadow: 0 0 25px var(--neon-shadow), 0 0 40px rgba(168, 85, 247, 0.3);
+    box-shadow: 0 0 25px var(--neon-shadow), 0 0 40px var(--neon-shadow);
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     z-index: 900; transition: all 0.3s ease; font-size: 28px;
   }
@@ -264,15 +263,15 @@
     height: 520px; max-height: calc(100vh - 140px);
     background: rgba(15, 8, 28, 0.95);
     border: 2px solid var(--border-glow); border-radius: 20px;
-    box-shadow: 0 0 40px var(--neon-shadow), inset 0 0 20px rgba(168, 85, 247, 0.15);
+    box-shadow: 0 0 40px var(--neon-shadow), inset 0 0 20px var(--neon-shadow);
     display: none; flex-direction: column; z-index: 950; overflow: hidden;
     backdrop-filter: blur(12px);
   }
   #chatPanel.open { display: flex; }
   .chat-header {
     padding: 16px 18px;
-    background: linear-gradient(90deg, rgba(168, 85, 247, 0.3), rgba(224, 170, 255, 0.15));
-    border-bottom: 1px solid rgba(168, 85, 247, 0.4);
+    background: linear-gradient(90deg, var(--neon-shadow), rgba(255, 255, 255, 0.05));
+    border-bottom: 1px solid var(--border-glow);
     display: flex; justify-content: space-between; align-items: center;
   }
   .chat-header h3 { font-size: 1.15rem; text-shadow: 0 0 10px var(--border-glow); }
@@ -284,7 +283,7 @@
     transition: 0.25s;
   }
   .chat-icon-btn:hover {
-    background: rgba(168, 85, 247, 0.3); color: #fff; box-shadow: 0 0 12px var(--neon-shadow);
+    background: var(--neon-shadow); color: #fff; box-shadow: 0 0 12px var(--neon-shadow);
   }
   #messagesArea {
     flex: 1; overflow-y: auto; padding: 16px;
@@ -294,13 +293,13 @@
   #messagesArea::-webkit-scrollbar-thumb { background: var(--border-glow); border-radius: 3px; }
   .message {
     background: rgba(30, 15, 50, 0.7);
-    border: 1px solid rgba(168, 85, 247, 0.25);
+    border: 1px solid var(--border-glow);
     border-radius: 14px; padding: 10px 14px; position: relative;
     animation: fadeIn 0.3s ease;
   }
   .message.own {
-    background: rgba(168, 85, 247, 0.2);
-    border-color: rgba(168, 85, 247, 0.5);
+    background: var(--neon-shadow);
+    border-color: var(--border-active);
   }
   .msg-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.78rem; }
   .msg-nick { color: var(--border-active); font-weight: 700; }
@@ -313,7 +312,7 @@
   }
   .msg-delete:hover { opacity: 1; }
   .chat-input-area {
-    padding: 14px; border-top: 1px solid rgba(168, 85, 247, 0.35);
+    padding: 14px; border-top: 1px solid var(--border-glow);
     display: flex; gap: 10px;
   }
   #chatInput {
@@ -358,7 +357,7 @@
   .settings-actions { margin-top: auto; display: flex; gap: 10px; }
   .settings-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
   #saveNickBtn { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; }
-  #closeSettingsBtn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(168,85,247,0.4); }
+  #closeSettingsBtn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-glow); }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -451,9 +450,8 @@
   </div>
 </div>
 
-<!-- Кнопка закрытия посередине снизу экрана игры -->
 <div id="bottomCloseGameContainer">
-  <button class="bottom-exit-btn" id="bottomCloseGameBtn">✕ Закрыть игру</button>
+  <button class="bottom-exit-btn" id="bottomCloseGameBtn">✕ Close Game</button>
 </div>
 
 <div class="bottom-left-controls">
@@ -469,7 +467,7 @@
       <input type="text" id="settingPassInput" placeholder="New password">
     </div>
     <div class="gs-row">
-      <label>Accent Color (Theme)</label>
+      <label>Theme Accent Color</label>
       <input type="color" id="settingAccentColor" value="#a855f7" style="height: 40px; cursor: pointer;">
     </div>
     <div class="gs-row">
@@ -581,12 +579,11 @@
 
   let isAdmin = localStorage.getItem('ascapha_is_admin') === 'true';
 
-  // Применяем сохраненный цвет темы
   function applyAccentColor(hex) {
     document.documentElement.style.setProperty('--border-glow', hex);
     document.documentElement.style.setProperty('--border-active', hex);
     document.documentElement.style.setProperty('--text-muted', hex);
-    document.documentElement.style.setProperty('--neon-shadow', hex + '66'); // с прозрачностью
+    document.documentElement.style.setProperty('--neon-shadow', hex + '66');
     document.documentElement.style.setProperty('--strong-glow', hex + 'cc');
   }
   applyAccentColor(accentColor);
