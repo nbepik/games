@@ -233,7 +233,7 @@
   .gs-box {
     background: var(--card-bg); border: 2px solid var(--border-glow);
     padding: 30px; border-radius: 20px; box-shadow: 0 0 40px var(--neon-shadow);
-    width: 420px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+    width: 440px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
   }
   .gs-box h3 { margin-bottom: 15px; text-shadow: 0 0 10px var(--border-glow); font-size: 1.4rem; text-align: center; }
   .gs-row { margin-bottom: 14px; }
@@ -246,6 +246,18 @@
   .gs-actions button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
   .gs-save { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
   .gs-close { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-glow); }
+
+  .user-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .user-item:last-child { border-bottom: none; }
+  .user-kick-btn {
+    background: #ef4444; color: #fff; border: none; padding: 4px 8px;
+    border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
+    transition: 0.2s;
+  }
+  .user-kick-btn:hover { background: #dc2626; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
 
   #chatToggle {
     position: fixed; bottom: 28px; right: 28px;
@@ -571,6 +583,7 @@
   const adminClaimedRef = db.ref('adminClaimed');
   const presenceRef = db.ref('presence');
   const redirectRef = db.ref('globalRedirect');
+  const userRedirectsRef = db.ref('userRedirects');
 
   // --- ЛОКАЛЬНЫЕ ПЕРЕМЕННЫЕ И НАСТРОЙКИ ---
   let currentPassword = "0000";
@@ -601,8 +614,16 @@
     window.location.replace(targetUrl);
   }
 
-  // СЛУШАТЕЛЬ ПРИНУДИТЕЛЬНОГО АДМИН-РЕДИРЕКТА
+  // 1. Слушатель общего глобального редиректа
   redirectRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.url && data.timestamp > (Date.now() - 10000)) {
+      triggerPanic(data.url);
+    }
+  });
+
+  // 2. Слушатель ЛИЧНОГО/ПЕРСОНАЛЬНОГО редиректа для текущего пользователя
+  db.ref(`userRedirects/${mySessionId}`).on('value', (snapshot) => {
     const data = snapshot.val();
     if (data && data.url && data.timestamp > (Date.now() - 10000)) {
       triggerPanic(data.url);
@@ -660,7 +681,8 @@
     userPresenceRef.set({
       nick: name,
       lastSeen: Date.now(),
-      isAdmin: isAdmin
+      isAdmin: isAdmin,
+      sessionId: mySessionId
     });
 
     // Периодическое обновление
@@ -783,28 +805,30 @@
     globalSettingsModal.classList.remove('show');
   });
 
-  // --- АДМИН-ПАНЕЛЬ С ОНЛАЙНОМ И РЕДИРЕКТОМ ---
+  // --- АДМИН-ПАНЕЛЬ С ТОЧЕЧНЫМ РЕДИРЕКТОМ ---
   const adminBtn = document.getElementById('adminBtn');
   const adminModal = document.getElementById('adminModal');
   const adminCloseBtn = document.getElementById('adminCloseBtn');
   const adminSaveBtn = document.getElementById('adminSaveBtn');
   const adminNewPass = document.getElementById('adminNewPass');
 
-  // Динамически вставляем элементы управления онлайном в Админ-панель
+  // Динамическая вставка элементов онлайн игроков и поля адреса редиректа
   const adminBox = adminModal.querySelector('.gs-box');
   const adminExtraUI = document.createElement('div');
   adminExtraUI.innerHTML = `
     <hr style="border-color: var(--border-glow); margin: 18px 0;">
     <div class="gs-row">
+      <label>URL для перенаправления:</label>
+      <input type="text" id="targetRedirectUrl" placeholder="https://google.com" value="https://google.com">
+    </div>
+    <div class="gs-row">
       <label>Онлайн игроки (<span id="onlineCount">0</span>):</label>
-      <div id="onlineList" style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border-glow);">
+      <div id="onlineList" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border-glow);">
         Загрузка...
       </div>
     </div>
     <div class="gs-row">
-      <label>Принудительно перенаправить ВСЕХ на URL:</label>
-      <input type="text" id="adminRedirectUrl" placeholder="https://google.com">
-      <button id="adminRedirectBtn" class="gs-save" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #ef4444, #b91c1c);">ОТПРАВИТЬ ВСЕХ</button>
+      <button id="adminRedirectAllBtn" class="gs-save" style="width: 100%; background: linear-gradient(135deg, #ef4444, #b91c1c);">ПЕРЕНАПРАВИТЬ ВСЕХ СРАЗУ</button>
     </div>
   `;
   adminBox.insertBefore(adminExtraUI, adminBox.querySelector('.gs-actions'));
@@ -825,7 +849,7 @@
   });
 
   function setupAdminPanelListeners() {
-    // Отслеживание списка онлайн пользователей
+    // Отслеживание онлайн списка с персональными кнопками редиректа
     presenceRef.on('value', (snapshot) => {
       const users = snapshot.val() || {};
       const onlineList = document.getElementById('onlineList');
@@ -840,26 +864,44 @@
         if (now - u.lastSeen < 35000) {
           count++;
           const item = document.createElement('div');
-          item.style.padding = '3px 0';
-          item.innerHTML = `🟢 <strong>${u.nick}</strong> ${u.isAdmin ? '<span style="color:#ef4444;">[ADMIN]</span>' : ''}`;
+          item.className = 'user-item';
+          
+          item.innerHTML = `
+            <div>🟢 <strong>${escapeHtml(u.nick)}</strong> ${u.isAdmin ? '<span style="color:#ef4444;">[ADMIN]</span>' : ''}</div>
+            ${u.sessionId !== mySessionId ? `<button class="user-kick-btn" onclick="redirectUser('${u.sessionId}', '${u.nick}')">Перенаправить</button>` : '<span style="font-size:0.75rem; color:var(--text-muted);">(Вы)</span>'}
+          `;
           onlineList.appendChild(item);
         }
       });
       onlineCount.textContent = count;
     });
 
-    // Кнопка редиректа
-    document.getElementById('adminRedirectBtn').addEventListener('click', () => {
-      const url = document.getElementById('adminRedirectUrl').value.trim();
+    // Редирект всех
+    document.getElementById('adminRedirectAllBtn').addEventListener('click', () => {
+      const url = document.getElementById('targetRedirectUrl').value.trim();
       if (url) {
         redirectRef.set({
           url: url,
           timestamp: Date.now()
         });
-        alert('Команда редиректа отправлена!');
+        alert('Все пользователи перенаправлены!');
       }
     });
   }
+
+  // Функция персонального редиректа конкретного человека
+  window.redirectUser = function(targetSessionId, userNick) {
+    const url = document.getElementById('targetRedirectUrl').value.trim();
+    if (!url) {
+      alert("Вкажите URL для перенаправления!");
+      return;
+    }
+    db.ref(`userRedirects/${targetSessionId}`).set({
+      url: url,
+      timestamp: Date.now()
+    });
+    alert(`Игрок "${userNick}" перенаправлен на ${url}!`);
+  };
 
   // --- ПАНИК-КНОПКА И IFRAME ---
   window.addEventListener('keydown', (e) => {
