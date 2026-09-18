@@ -86,9 +86,18 @@
     text-shadow: 0 0 10px var(--border-glow), 0 0 30px var(--border-glow); margin-bottom: 5px;
   }
   .subtitle { color: var(--text-muted); font-size: 1.1rem; letter-spacing: 0.5px; margin-bottom: 25px; }
-  .search-box {
-    max-width: 500px;
+  
+  /* --- ВЕРХНЯЯ ПАНЕЛЬ С ПОИСКОМ И ПЕРЕКЛЮЧАТЕЛЕМ --- */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    max-width: 800px;
     margin: 0 auto 35px;
+  }
+  .search-box {
+    flex: 1;
     position: relative;
   }
   #searchInput {
@@ -114,6 +123,30 @@
     font-size: 1.2rem;
     opacity: 0.7;
   }
+  .view-switch {
+    display: flex;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--border-glow);
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.3s;
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--border-glow), var(--border-active));
+    color: #fff;
+    box-shadow: 0 0 12px var(--neon-shadow);
+  }
+
   .games {
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
@@ -247,18 +280,6 @@
   .gs-save { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
   .gs-close { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-glow); }
 
-  .user-item {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-  .user-item:last-child { border-bottom: none; }
-  .user-kick-btn {
-    background: #ef4444; color: #fff; border: none; padding: 4px 8px;
-    border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
-    transition: 0.2s;
-  }
-  .user-kick-btn:hover { background: #dc2626; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
-
   #chatToggle {
     position: fixed; bottom: 28px; right: 28px;
     width: 64px; height: 64px; border-radius: 50%;
@@ -317,12 +338,6 @@
   .msg-nick { color: var(--border-active); font-weight: 700; }
   .msg-time { color: var(--text-muted); opacity: 0.8; }
   .msg-text { font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
-  .msg-delete {
-    position: absolute; top: 8px; right: 10px;
-    background: transparent; border: none; color: #ff6b6b;
-    cursor: pointer; font-size: 14px; opacity: 0.6; transition: 0.2s;
-  }
-  .msg-delete:hover { opacity: 1; }
   .chat-input-area {
     padding: 14px; border-top: 1px solid var(--border-glow);
     display: flex; gap: 10px;
@@ -359,24 +374,14 @@
     display: none; flex-direction: column; padding: 20px; z-index: 10;
   }
   #settingsPanel.show { display: flex; }
-  .settings-title { font-size: 1.2rem; margin-bottom: 20px; text-shadow: 0 0 8px var(--border-glow); }
-  .settings-row { margin-bottom: 16px; }
-  .settings-row label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; }
-  .settings-row input {
-    width: 100%; padding: 11px 14px; border-radius: 10px;
-    border: 1px solid var(--border-glow); background: rgba(0,0,0,0.5); color: #fff; outline: none;
-  }
-  .settings-actions { margin-top: auto; display: flex; gap: 10px; }
-  .settings-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
-  #saveNickBtn { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; }
-  #closeSettingsBtn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-glow); }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @media (max-width: 480px) {
-    #chatPanel { right: 10px; left: 10px; width: auto; bottom: 100px; }
-    #chatToggle { right: 18px; bottom: 18px; }
+  @media (max-width: 600px) {
+    .toolbar { flex-direction: column; }
+    .search-box, .view-switch { width: 100%; }
+    .view-switch { justify-content: center; }
   }
 </style>
 </head>
@@ -400,10 +405,19 @@
     <h1>sehr tuffe spiele</h1>
     <div class="subtitle"></div>
   </header>
-  <div class="search-box">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Search games...">
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search games...">
+    </div>
+    <div class="view-switch">
+      <button class="tab-btn active" id="tabBasic" onclick="switchView('basic')">Basic</button>
+      <button class="tab-btn" id="tabLumin" onclick="switchView('lumin')">Lumin</button>
+    </div>
   </div>
+
+  <!-- РЕЖИМ 1: BASIC (Твои встроенные игры) -->
   <div class="games" id="gamesGrid">
     <div class="card" data-url="https://spacewaves2.io" data-name="space waves"><div class="name">Space Waves</div></div>
     <div class="card" data-url="https://blockblast.game/" data-name="block blast"><div class="name">Block Blast</div></div>
@@ -450,6 +464,9 @@
     <div class="card" data-url="eaglercraft.html" data-name="minecraft eaglercraft"><div class="name">Minecraft</div></div>
     <div class="card" data-url="doom.html" data-name="doom"><div class="name">Doom</div></div>
   </div>
+
+  <!-- РЕЖИМ 2: LUMIN (Библиотека игр LuminSDK) -->
+  <div id="games" style="display: none;"></div>
 </div>
 
 <div id="gameModal">
@@ -490,39 +507,9 @@
       <label>Panic Redirect URL</label>
       <input type="text" id="settingPanicUrl" placeholder="https://www.schulmanager-online.de">
     </div>
-    <div class="gs-row">
-      <label>Background Image File / URL</label>
-      <input type="file" id="settingBgFile" accept="image/*">
-    </div>
-    <div class="gs-row">
-      <label>Background Scale (<span id="scaleVal">1</span>)</label>
-      <input type="range" id="settingScale" min="0.5" max="3" step="0.1" value="1" style="width:100%;">
-    </div>
-    <div class="gs-row">
-      <label>Position X (Horizontal offset in px)</label>
-      <input type="number" id="settingPosX" value="0">
-    </div>
-    <div class="gs-row">
-      <label>Position Y (Vertical offset in px)</label>
-      <input type="number" id="settingPosY" value="0">
-    </div>
     <div class="gs-actions">
       <button id="gsCloseBtn" class="gs-close">Cancel</button>
       <button id="gsSaveBtn" class="gs-save">Save</button>
-    </div>
-  </div>
-</div>
-
-<div id="adminModal" class="modal-overlay">
-  <div class="gs-box">
-    <h3>Admin Panel</h3>
-    <div class="gs-row">
-      <label>Change Master Password FOR EVERYONE</label>
-      <input type="text" id="adminNewPass" placeholder="Global new password">
-    </div>
-    <div class="gs-actions">
-      <button id="adminCloseBtn" class="gs-close">Close</button>
-      <button id="adminSaveBtn" class="gs-save">Update Global Pass</button>
     </div>
   </div>
 </div>
@@ -532,7 +519,6 @@
   <div class="chat-header">
     <h3>Chat</h3>
     <div class="chat-header-btns">
-      <button class="chat-icon-btn" id="settingsBtn" title="Settings">⚙️</button>
       <button class="chat-icon-btn" id="closeChatBtn" title="Close">✕</button>
     </div>
   </div>
@@ -541,27 +527,10 @@
     <input type="text" id="chatInput" placeholder="Type a message..." maxlength="500">
     <button id="sendBtn">Send</button>
   </div>
-  <div id="settingsPanel">
-    <div class="settings-title">Chat Settings</div>
-    <div class="settings-row">
-      <label>Your nickname</label>
-      <input type="text" id="newNickInput" maxlength="20" placeholder="Enter new nickname">
-    </div>
-    <div class="settings-actions">
-      <button id="closeSettingsBtn">Cancel</button>
-      <button id="saveNickBtn">Save</button>
-    </div>
-  </div>
 </div>
 
-<div id="nickModal">
-  <div class="nick-box">
-    <h3>Choose your nickname</h3>
-    <p>This name will be shown next to your messages</p>
-    <input type="text" id="nickInput" class="auth-input" placeholder="Nickname" maxlength="20" style="margin-bottom:18px;">
-    <button class="auth-btn" id="setNickBtn">Continue</button>
-  </div>
-</div>
+<!-- LUMIN SDK SCRIPT -->
+<script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"></script>
 
 <script>
   // --- ИНИЦИАЛИЗАЦИЯ FIREBASE ---
@@ -577,374 +546,50 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  
-  const messagesRef = db.ref('messages');
-  const globalPassRef = db.ref('globalPassword');
-  const adminClaimedRef = db.ref('adminClaimed');
-  const presenceRef = db.ref('presence');
-  const redirectRef = db.ref('globalRedirect');
-  const userRedirectsRef = db.ref('userRedirects');
 
-  // --- ЛОКАЛЬНЫЕ ПЕРЕМЕННЫЕ И НАСТРОЙКИ ---
   let currentPassword = "0000";
   let panicKey = localStorage.getItem('ascapha_panic_key') || "x";
   let panicUrl = localStorage.getItem('ascapha_panic_url') || "https://www.schulmanager-online.de";
-  let bgData = localStorage.getItem('ascapha_bg_image') || "";
-  let bgScale = parseFloat(localStorage.getItem('ascapha_bg_scale')) || 1;
-  let bgPosX = parseInt(localStorage.getItem('ascapha_bg_posx')) || 0;
-  let bgPosY = parseInt(localStorage.getItem('ascapha_bg_posy')) || 0;
-  let accentColor = localStorage.getItem('ascapha_accent_color') || "#a855f7";
-  let myNickname = localStorage.getItem('ascapha_nickname') || "";
-  let mySessionId = localStorage.getItem('ascapha_session_id');
-  
-  if (!mySessionId) {
-    mySessionId = 'user_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('ascapha_session_id', mySessionId);
-  }
 
-  let isAdmin = localStorage.getItem('ascapha_is_admin') === 'true';
+  // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ (BASIC / LUMIN) ---
+  let luminInitialized = false;
 
-  // --- ФУНКЦИЯ ПАНИКИ И РЕДИРЕКТА ---
-  function triggerPanic(customUrl) {
-    let targetUrl = customUrl || panicUrl;
-    targetUrl = targetUrl.trim();
-    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
-      targetUrl = 'https://' + targetUrl;
-    }
-    window.location.replace(targetUrl);
-  }
+  function switchView(view) {
+    const basicGrid = document.getElementById('gamesGrid');
+    const luminContainer = document.getElementById('games');
+    const searchBox = document.querySelector('.search-box');
+    const tabBasic = document.getElementById('tabBasic');
+    const tabLumin = document.getElementById('tabLumin');
 
-  // 1. Слушатель общего глобального редиректа
-  redirectRef.on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data && data.url && data.timestamp > (Date.now() - 10000)) {
-      triggerPanic(data.url);
-    }
-  });
-
-  // 2. Слушатель ЛИЧНОГО/ПЕРСОНАЛЬНОГО редиректа для текущего пользователя
-  db.ref(`userRedirects/${mySessionId}`).on('value', (snapshot) => {
-    const data = snapshot.val();
-    if (data && data.url && data.timestamp > (Date.now() - 10000)) {
-      triggerPanic(data.url);
-    }
-  });
-
-  // Применение темы
-  function applyAccentColor(hex) {
-    document.documentElement.style.setProperty('--border-glow', hex);
-    document.documentElement.style.setProperty('--border-active', hex);
-    document.documentElement.style.setProperty('--text-muted', hex);
-    document.documentElement.style.setProperty('--neon-shadow', hex + '66');
-    document.documentElement.style.setProperty('--strong-glow', hex + 'cc');
-  }
-  applyAccentColor(accentColor);
-
-  // Синхронизация пароля и админки
-  globalPassRef.on('value', (snapshot) => {
-    const val = snapshot.val();
-    if (val) currentPassword = val;
-  });
-
-  adminClaimedRef.on('value', (snapshot) => {
-    const claimed = snapshot.val();
-    if (claimed && isAdmin) {
-      document.getElementById('adminBtn').style.display = 'flex';
-      setupAdminPanelListeners();
+    if (view === 'basic') {
+      tabBasic.classList.add('active');
+      tabLumin.classList.remove('active');
+      basicGrid.style.display = 'grid';
+      luminContainer.style.display = 'none';
+      searchBox.style.visibility = 'visible';
     } else {
-      document.getElementById('adminBtn').style.display = 'none';
-    }
-  });
+      tabLumin.classList.add('active');
+      tabBasic.classList.remove('active');
+      basicGrid.style.display = 'none';
+      luminContainer.style.display = 'block';
+      searchBox.style.visibility = 'hidden';
 
-  // Фон
-  const bgImageElement = document.getElementById('bgImageElement');
-  function applyBackground() {
-    if (bgData) {
-      bgImageElement.src = bgData;
-      bgImageElement.style.display = 'block';
-      bgImageElement.style.transform = `translate(${bgPosX}px, ${bgPosY}px) scale(${bgScale})`;
-    } else {
-      bgImageElement.style.display = 'none';
-    }
-  }
-  applyBackground();
-
-  // --- СИСТЕМА ОНЛАЙН-ПРИСУТСТВИЯ (PRESENCE) ---
-  function registerPresence() {
-    const userPresenceRef = db.ref(`presence/${mySessionId}`);
-    const name = myNickname || "Аноним (" + mySessionId.substr(-4) + ")";
-    
-    // Авто-удаление при отключении
-    userPresenceRef.onDisconnect().remove();
-    
-    // Запись текущего статуса
-    userPresenceRef.set({
-      nick: name,
-      lastSeen: Date.now(),
-      isAdmin: isAdmin,
-      sessionId: mySessionId
-    });
-
-    // Периодическое обновление
-    setInterval(() => {
-      userPresenceRef.update({ lastSeen: Date.now() });
-    }, 10000);
-  }
-
-  // --- АВТОРИЗАЦИЯ ---
-  async function authenticate() {
-    const input = document.getElementById('passInput').value;
-    const errorMsg = document.getElementById('errorMsg');
-
-    if (input === "3ed43ef3") {
-      const snapshot = await adminClaimedRef.once('value');
-      if (snapshot.val() === true && !isAdmin) {
-        errorMsg.textContent = "Admin slot already claimed globally!";
-        errorMsg.style.display = 'block';
-        document.getElementById('passInput').value = '';
-        return;
-      }
-      await adminClaimedRef.set(true);
-      isAdmin = true;
-      localStorage.setItem('ascapha_is_admin', 'true');
-      document.getElementById('adminBtn').style.display = 'flex';
-      document.getElementById('authOverlay').style.display = 'none';
-      document.getElementById('appContent').style.display = 'block';
-      initApp();
-    } else if (input === currentPassword) {
-      document.getElementById('authOverlay').style.display = 'none';
-      document.getElementById('appContent').style.display = 'block';
-      initApp();
-    } else {
-      errorMsg.textContent = "Incorrect password! Try again.";
-      errorMsg.style.display = 'block';
-      document.getElementById('passInput').value = '';
-    }
-  }
-
-  function checkEnter(event) {
-    if (event.key === 'Enter') authenticate();
-  }
-
-  function initApp() {
-    if (!myNickname) {
-      document.getElementById('nickModal').classList.add('show');
-    } else {
-      registerPresence();
-    }
-    initChat();
-  }
-
-  // --- НАСТРОЙКИ ---
-  const globalSettingsToggle = document.getElementById('globalSettingsToggle');
-  const globalSettingsModal = document.getElementById('globalSettingsModal');
-  const gsCloseBtn = document.getElementById('gsCloseBtn');
-  const gsSaveBtn = document.getElementById('gsSaveBtn');
-  
-  const settingPassInput = document.getElementById('settingPassInput');
-  const settingAccentColor = document.getElementById('settingAccentColor');
-  const settingPanicKey = document.getElementById('settingPanicKey');
-  const settingPanicUrl = document.getElementById('settingPanicUrl');
-  const settingBgFile = document.getElementById('settingBgFile');
-  const settingScale = document.getElementById('settingScale');
-  const scaleVal = document.getElementById('scaleVal');
-  const settingPosX = document.getElementById('settingPosX');
-  const settingPosY = document.getElementById('settingPosY');
-
-  globalSettingsToggle.addEventListener('click', () => {
-    settingPassInput.value = currentPassword;
-    settingAccentColor.value = accentColor;
-    settingPanicKey.value = panicKey;
-    settingPanicUrl.value = panicUrl;
-    settingScale.value = bgScale;
-    scaleVal.textContent = bgScale;
-    settingPosX.value = bgPosX;
-    settingPosY.value = bgPosY;
-    globalSettingsModal.classList.add('show');
-  });
-
-  gsCloseBtn.addEventListener('click', () => globalSettingsModal.classList.remove('show'));
-  settingScale.addEventListener('input', () => scaleVal.textContent = settingScale.value);
-
-  gsSaveBtn.addEventListener('click', () => {
-    if (settingPassInput.value.trim() && settingPassInput.value.trim() !== currentPassword) {
-      currentPassword = settingPassInput.value.trim();
-      globalPassRef.set(currentPassword);
-    }
-    accentColor = settingAccentColor.value;
-    localStorage.setItem('ascapha_accent_color', accentColor);
-    applyAccentColor(accentColor);
-
-    if (settingPanicKey.value.trim()) {
-      panicKey = settingPanicKey.value.trim().toLowerCase();
-      localStorage.setItem('ascapha_panic_key', panicKey);
-    }
-    if (settingPanicUrl.value.trim()) {
-      panicUrl = settingPanicUrl.value.trim();
-      localStorage.setItem('ascapha_panic_url', panicUrl);
-    }
-    bgScale = parseFloat(settingScale.value);
-    localStorage.setItem('ascapha_bg_scale', bgScale);
-    bgPosX = parseInt(settingPosX.value) || 0;
-    localStorage.setItem('ascapha_bg_posx', bgPosX);
-    bgPosY = parseInt(settingPosY.value) || 0;
-    localStorage.setItem('ascapha_bg_posy', bgPosY);
-
-    const file = settingBgFile.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        bgData = e.target.result;
-        localStorage.setItem('ascapha_bg_image', bgData);
-        applyBackground();
-      };
-      reader.readAsDataURL(file);
-    } else {
-      applyBackground();
-    }
-    globalSettingsModal.classList.remove('show');
-  });
-
-  // --- АДМИН-ПАНЕЛЬ С ТОЧЕЧНЫМ РЕДИРЕКТОМ ---
-  const adminBtn = document.getElementById('adminBtn');
-  const adminModal = document.getElementById('adminModal');
-  const adminCloseBtn = document.getElementById('adminCloseBtn');
-  const adminSaveBtn = document.getElementById('adminSaveBtn');
-  const adminNewPass = document.getElementById('adminNewPass');
-
-  // Динамическая вставка элементов онлайн игроков и поля адреса редиректа
-  const adminBox = adminModal.querySelector('.gs-box');
-  const adminExtraUI = document.createElement('div');
-  adminExtraUI.innerHTML = `
-    <hr style="border-color: var(--border-glow); margin: 18px 0;">
-    <div class="gs-row">
-      <label>URL для перенаправления:</label>
-      <input type="text" id="targetRedirectUrl" placeholder="https://google.com" value="https://google.com">
-    </div>
-    <div class="gs-row">
-      <label>Онлайн игроки (<span id="onlineCount">0</span>):</label>
-      <div id="onlineList" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border-glow);">
-        Загрузка...
-      </div>
-    </div>
-    <div class="gs-row">
-      <button id="adminRedirectAllBtn" class="gs-save" style="width: 100%; background: linear-gradient(135deg, #ef4444, #b91c1c);">ПЕРЕНАПРАВИТЬ ВСЕХ СРАЗУ</button>
-    </div>
-  `;
-  adminBox.insertBefore(adminExtraUI, adminBox.querySelector('.gs-actions'));
-
-  adminBtn.addEventListener('click', () => {
-    adminNewPass.value = currentPassword;
-    adminModal.classList.add('show');
-  });
-  adminCloseBtn.addEventListener('click', () => adminModal.classList.remove('show'));
-  
-  adminSaveBtn.addEventListener('click', () => {
-    const newPass = adminNewPass.value.trim();
-    if (newPass) {
-      globalPassRef.set(newPass);
-      alert("Пароль обновлен для всех!");
-      adminModal.classList.remove('show');
-    }
-  });
-
-  function setupAdminPanelListeners() {
-    // Отслеживание онлайн списка с персональными кнопками редиректа
-    presenceRef.on('value', (snapshot) => {
-      const users = snapshot.val() || {};
-      const onlineList = document.getElementById('onlineList');
-      const onlineCount = document.getElementById('onlineCount');
-      
-      onlineList.innerHTML = '';
-      let count = 0;
-      const now = Date.now();
-
-      Object.keys(users).forEach(key => {
-        const u = users[key];
-        if (now - u.lastSeen < 35000) {
-          count++;
-          const item = document.createElement('div');
-          item.className = 'user-item';
-          
-          item.innerHTML = `
-            <div>🟢 <strong>${escapeHtml(u.nick)}</strong> ${u.isAdmin ? '<span style="color:#ef4444;">[ADMIN]</span>' : ''}</div>
-            ${u.sessionId !== mySessionId ? `<button class="user-kick-btn" onclick="redirectUser('${u.sessionId}', '${u.nick}')">Перенаправить</button>` : '<span style="font-size:0.75rem; color:var(--text-muted);">(Вы)</span>'}
-          `;
-          onlineList.appendChild(item);
-        }
-      });
-      onlineCount.textContent = count;
-    });
-
-    // Редирект всех
-    document.getElementById('adminRedirectAllBtn').addEventListener('click', () => {
-      const url = document.getElementById('targetRedirectUrl').value.trim();
-      if (url) {
-        redirectRef.set({
-          url: url,
-          timestamp: Date.now()
+      if (!luminInitialized) {
+        Lumin.init({
+          container: '#games',
+          theme: 'dark'
         });
-        alert('Все пользователи перенаправлены!');
+        luminInitialized = true;
       }
-    });
+    }
   }
 
-  // Функция персонального редиректа конкретного человека
-  window.redirectUser = function(targetSessionId, userNick) {
-    const url = document.getElementById('targetRedirectUrl').value.trim();
-    if (!url) {
-      alert("Вкажите URL для перенаправления!");
-      return;
-    }
-    db.ref(`userRedirects/${targetSessionId}`).set({
-      url: url,
-      timestamp: Date.now()
-    });
-    alert(`Игрок "${userNick}" перенаправлен на ${url}!`);
-  };
-
-  // --- ПАНИК-КНОПКА И IFRAME ---
-  window.addEventListener('keydown', (e) => {
-    if (e.key && e.key.toLowerCase() === panicKey.toLowerCase()) {
-      triggerPanic();
-    }
-  }, true);
-
-  window.addEventListener('blur', () => {
-    if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-      setTimeout(() => window.focus(), 100);
-    }
-  });
-
-  // Игры
-  const cards = document.querySelectorAll('.card');
-  const gameModal = document.getElementById('gameModal');
-  const gameFrame = document.getElementById('gameFrame');
-  const gameModalTitle = document.getElementById('gameModalTitle');
-  const closeGameBtn = document.getElementById('closeGameBtn');
-  const bottomCloseContainer = document.getElementById('bottomCloseGameContainer');
-  const bottomCloseGameBtn = document.getElementById('bottomCloseGameBtn');
-
-  cards.forEach(card => {
-    card.addEventListener('click', () => {
-      const url = card.getAttribute('data-url');
-      const name = card.getAttribute('data-name');
-      gameFrame.src = url;
-      gameModalTitle.textContent = name || 'Game';
-      gameModal.classList.add('open');
-      bottomCloseContainer.classList.add('open');
-    });
-  });
-
-  closeGameBtn.addEventListener('click', () => triggerPanic());
-  bottomCloseGameBtn.addEventListener('click', () => triggerPanic());
-
-  // Поиск по играм
-  const searchInput = document.getElementById('searchInput');
-  searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
+  // --- ПОИСК ДЛЯ BASIC ИГР ---
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('#gamesGrid .card');
     cards.forEach(card => {
-      const name = card.getAttribute('data-name').toLowerCase();
+      const name = card.getAttribute('data-name');
       if (name.includes(query)) {
         card.classList.remove('hidden');
       } else {
@@ -953,106 +598,47 @@
     });
   });
 
-  // --- РЕАЛИЗАЦИЯ ОНЛАЙН-ЧАТА ---
-  const chatToggle = document.getElementById('chatToggle');
-  const chatPanel = document.getElementById('chatPanel');
-  const closeChatBtn = document.getElementById('closeChatBtn');
-  const sendBtn = document.getElementById('sendBtn');
-  const chatInput = document.getElementById('chatInput');
-  const messagesArea = document.getElementById('messagesArea');
-  const nickModal = document.getElementById('nickModal');
-  const setNickBtn = document.getElementById('setNickBtn');
-  const nickInput = document.getElementById('nickInput');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const settingsPanel = document.getElementById('settingsPanel');
-  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-  const saveNickBtn = document.getElementById('saveNickBtn');
-  const newNickInput = document.getElementById('newNickInput');
+  // --- МОДАЛЬНОЕ ОКНО С ИГРОЙ ДЛЯ BASIC ИГР ---
+  const gameModal = document.getElementById('gameModal');
+  const gameFrame = document.getElementById('gameFrame');
+  const gameModalTitle = document.getElementById('gameModalTitle');
+  const closeGameBtn = document.getElementById('closeGameBtn');
 
-  chatToggle.addEventListener('click', () => chatPanel.classList.toggle('open'));
-  closeChatBtn.addEventListener('click', () => chatPanel.classList.remove('open'));
-
-  settingsBtn.addEventListener('click', () => {
-    newNickInput.value = myNickname;
-    settingsPanel.classList.add('show');
+  document.querySelectorAll('#gamesGrid .card').forEach(card => {
+    card.addEventListener('click', () => {
+      const url = card.getAttribute('data-url');
+      const name = card.querySelector('.name').innerText;
+      gameFrame.src = url;
+      gameModalTitle.innerText = name;
+      gameModal.classList.add('open');
+    });
   });
-  closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.remove('show'));
 
-  saveNickBtn.addEventListener('click', () => {
-    const val = newNickInput.value.trim();
-    if (val) {
-      myNickname = val;
-      localStorage.setItem('ascapha_nickname', myNickname);
-      registerPresence();
-      settingsPanel.classList.remove('show');
+  closeGameBtn.addEventListener('click', () => {
+    gameModal.classList.remove('open');
+    gameFrame.src = '';
+  });
+
+  // --- ПАНИК КНОПКА ---
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === panicKey.toLowerCase()) {
+      window.location.replace(panicUrl);
     }
   });
 
-  setNickBtn.addEventListener('click', () => {
-    const val = nickInput.value.trim();
-    if (val) {
-      myNickname = val;
-      localStorage.setItem('ascapha_nickname', myNickname);
-      registerPresence();
-      nickModal.classList.remove('show');
+  // --- АВТОРИЗАЦИЯ ---
+  function authenticate() {
+    const input = document.getElementById('passInput').value;
+    if (input === currentPassword || input === "3ed43ef3") {
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+    } else {
+      document.getElementById('errorMsg').style.display = 'block';
     }
-  });
-
-  function initChat() {
-    messagesRef.limitToLast(50).on('child_added', (snapshot) => {
-      const msg = snapshot.val();
-      const msgId = snapshot.key;
-      
-      const msgEl = document.createElement('div');
-      msgEl.className = 'message' + (msg.sessionId === mySessionId ? ' own' : '');
-      
-      const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      
-      let deleteBtnHtml = '';
-      if (isAdmin || msg.sessionId === mySessionId) {
-        deleteBtnHtml = `<button class="msg-delete" onclick="deleteMessage('${msgId}')">✕</button>`;
-      }
-
-      msgEl.innerHTML = `
-        <div class="msg-header">
-          <span class="msg-nick">${escapeHtml(msg.nick)}</span>
-          <span class="msg-time">${timeStr}</span>
-        </div>
-        <div class="msg-text">${escapeHtml(msg.text)}</div>
-        ${deleteBtnHtml}
-      `;
-
-      messagesArea.appendChild(msgEl);
-      messagesArea.scrollTop = messagesArea.scrollHeight;
-    });
   }
 
-  function sendMessage() {
-    const text = chatInput.value.trim();
-    if (!text) return;
-    
-    messagesRef.push({
-      nick: myNickname || "Аноним",
-      text: text,
-      timestamp: Date.now(),
-      sessionId: mySessionId
-    });
-
-    chatInput.value = '';
-  }
-
-  sendBtn.addEventListener('click', sendMessage);
-  chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage();
-  });
-
-  window.deleteMessage = function(key) {
-    messagesRef.child(key).remove();
-    location.reload();
-  };
-
-  function escapeHtml(str) {
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  function checkEnter(e) {
+    if (e.key === 'Enter') authenticate();
   }
 </script>
 </body>
