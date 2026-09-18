@@ -6,6 +6,50 @@
 <title>ascapha bypass</title>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<!-- ВСТРОЕННЫЙ ADBLOCKER ДЛЯ САЙТА И IFRAME -->
+<script>
+  (function() {
+    const adDomains = [
+      'googleads', 'googlesyndication', 'doubleclick.net', 'adnxs.com',
+      'popads.net', 'popcash.net', 'adform.net', 'adroll.com', 'outbrain.com',
+      'taboola.com', 'zeronetwork', 'adsterra', 'exoclick'
+    ];
+
+    function isAdUrl(url) {
+      if (!url) return false;
+      return adDomains.some(domain => url.includes(domain));
+    }
+
+    // Блокировка XHR
+    const origOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url) {
+      if (isAdUrl(url)) {
+        console.log('[AdBlocker] Blocked XHR:', url);
+        return;
+      }
+      return origOpen.apply(this, arguments);
+    };
+
+    // Блокировка Fetch
+    const origFetch = window.fetch;
+    window.fetch = function(resource, init) {
+      const url = typeof resource === 'string' ? resource : resource.url;
+      if (isAdUrl(url)) {
+        console.log('[AdBlocker] Blocked Fetch:', url);
+        return Promise.reject(new Error('Blocked by internal AdBlocker'));
+      }
+      return origFetch.apply(this, arguments);
+    };
+
+    // Удаление рекламных элементов из DOM
+    const adSelectors = '[id*="aria-ad"], [class*="ad-box"], [class*="banner-ad"], iframe[src*="doubleclick"], iframe[src*="googleads"]';
+    setInterval(() => {
+      document.querySelectorAll(adSelectors).forEach(el => el.remove());
+    }, 1500);
+  })();
+</script>
+
 <style>
   :root {
     --bg-color: #07040d;
@@ -86,8 +130,8 @@
     text-shadow: 0 0 10px var(--border-glow), 0 0 30px var(--border-glow); margin-bottom: 5px;
   }
   .subtitle { color: var(--text-muted); font-size: 1.1rem; letter-spacing: 0.5px; margin-bottom: 25px; }
-  
-  /* --- ВЕРХНЯЯ ПАНЕЛЬ С ПОИСКОМ И ПЕРЕКЛЮЧАТЕЛЕМ --- */
+
+  /* ПАНЕЛЬ ПОИСКА И ПЕРЕКЛЮЧАТЕЛЯ */
   .toolbar {
     display: flex;
     justify-content: space-between;
@@ -178,6 +222,16 @@
     font-size: 0.95rem;
     line-height: 1.3;
   }
+
+  /* СТИЛИ ДЛЯ ВЫВОДА СПЛОШНОГО СПИСКА LUMIN */
+  #games {
+    width: 100%;
+    min-height: 500px;
+  }
+  #games .pagination, #games .page-navigation, #games [class*="pagination"] {
+    display: none !important; /* Отключаем страницы */
+  }
+
   #gameModal {
     position: fixed; inset: 0;
     background: rgba(7, 4, 13, 0.75);
@@ -280,6 +334,18 @@
   .gs-save { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; box-shadow: 0 0 10px var(--neon-shadow); }
   .gs-close { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-glow); }
 
+  .user-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .user-item:last-child { border-bottom: none; }
+  .user-kick-btn {
+    background: #ef4444; color: #fff; border: none; padding: 4px 8px;
+    border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer;
+    transition: 0.2s;
+  }
+  .user-kick-btn:hover { background: #dc2626; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+
   #chatToggle {
     position: fixed; bottom: 28px; right: 28px;
     width: 64px; height: 64px; border-radius: 50%;
@@ -338,6 +404,12 @@
   .msg-nick { color: var(--border-active); font-weight: 700; }
   .msg-time { color: var(--text-muted); opacity: 0.8; }
   .msg-text { font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
+  .msg-delete {
+    position: absolute; top: 8px; right: 10px;
+    background: transparent; border: none; color: #ff6b6b;
+    cursor: pointer; font-size: 14px; opacity: 0.6; transition: 0.2s;
+  }
+  .msg-delete:hover { opacity: 1; }
   .chat-input-area {
     padding: 14px; border-top: 1px solid var(--border-glow);
     display: flex; gap: 10px;
@@ -374,6 +446,17 @@
     display: none; flex-direction: column; padding: 20px; z-index: 10;
   }
   #settingsPanel.show { display: flex; }
+  .settings-title { font-size: 1.2rem; margin-bottom: 20px; text-shadow: 0 0 8px var(--border-glow); }
+  .settings-row { margin-bottom: 16px; }
+  .settings-row label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 6px; }
+  .settings-row input {
+    width: 100%; padding: 11px 14px; border-radius: 10px;
+    border: 1px solid var(--border-glow); background: rgba(0,0,0,0.5); color: #fff; outline: none;
+  }
+  .settings-actions { margin-top: auto; display: flex; gap: 10px; }
+  .settings-actions button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+  #saveNickBtn { background: linear-gradient(135deg, var(--border-glow), var(--border-active)); color: #fff; }
+  #closeSettingsBtn { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border-glow); }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -382,6 +465,8 @@
     .toolbar { flex-direction: column; }
     .search-box, .view-switch { width: 100%; }
     .view-switch { justify-content: center; }
+    #chatPanel { right: 10px; left: 10px; width: auto; bottom: 100px; }
+    #chatToggle { right: 18px; bottom: 18px; }
   }
 </style>
 </head>
@@ -417,7 +502,7 @@
     </div>
   </div>
 
-  <!-- РЕЖИМ 1: BASIC (Твои встроенные игры) -->
+  <!-- BASIC ИГРЫ -->
   <div class="games" id="gamesGrid">
     <div class="card" data-url="https://spacewaves2.io" data-name="space waves"><div class="name">Space Waves</div></div>
     <div class="card" data-url="https://blockblast.game/" data-name="block blast"><div class="name">Block Blast</div></div>
@@ -465,7 +550,7 @@
     <div class="card" data-url="doom.html" data-name="doom"><div class="name">Doom</div></div>
   </div>
 
-  <!-- РЕЖИМ 2: LUMIN (Библиотека игр LuminSDK) -->
+  <!-- LUMIN БИБЛИОТЕКА ИГР -->
   <div id="games" style="display: none;"></div>
 </div>
 
@@ -507,9 +592,43 @@
       <label>Panic Redirect URL</label>
       <input type="text" id="settingPanicUrl" placeholder="https://www.schulmanager-online.de">
     </div>
+    <div class="gs-row">
+      <label>Background Image File / URL</label>
+      <input type="file" id="settingBgFile" accept="image/*">
+    </div>
+    <div class="gs-row">
+      <label>Background Scale (<span id="scaleVal">1</span>)</label>
+      <input type="range" id="settingScale" min="0.5" max="3" step="0.1" value="1" style="width:100%;">
+    </div>
+    <div class="gs-row">
+      <label>Position X (Horizontal offset in px)</label>
+      <input type="number" id="settingPosX" value="0">
+    </div>
+    <div class="gs-row">
+      <label>Position Y (Vertical offset in px)</label>
+      <input type="number" id="settingPosY" value="0">
+    </div>
     <div class="gs-actions">
       <button id="gsCloseBtn" class="gs-close">Cancel</button>
       <button id="gsSaveBtn" class="gs-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminModal" class="modal-overlay">
+  <div class="gs-box">
+    <h3>Admin Panel</h3>
+    <div class="gs-row">
+      <label>Change Master Password FOR EVERYONE</label>
+      <input type="text" id="adminNewPass" placeholder="Global new password">
+    </div>
+    <div class="gs-row">
+      <label>Online Users</label>
+      <div id="onlineUsersList" style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 8px;"></div>
+    </div>
+    <div class="gs-actions">
+      <button id="adminCloseBtn" class="gs-close">Close</button>
+      <button id="adminSaveBtn" class="gs-save">Update Global Pass</button>
     </div>
   </div>
 </div>
@@ -519,6 +638,7 @@
   <div class="chat-header">
     <h3>Chat</h3>
     <div class="chat-header-btns">
+      <button class="chat-icon-btn" id="settingsBtn" title="Settings">⚙️</button>
       <button class="chat-icon-btn" id="closeChatBtn" title="Close">✕</button>
     </div>
   </div>
@@ -527,9 +647,29 @@
     <input type="text" id="chatInput" placeholder="Type a message..." maxlength="500">
     <button id="sendBtn">Send</button>
   </div>
+  <div id="settingsPanel">
+    <div class="settings-title">Chat Settings</div>
+    <div class="settings-row">
+      <label>Your nickname</label>
+      <input type="text" id="newNickInput" maxlength="20" placeholder="Enter new nickname">
+    </div>
+    <div class="settings-actions">
+      <button id="closeSettingsBtn">Cancel</button>
+      <button id="saveNickBtn">Save</button>
+    </div>
+  </div>
 </div>
 
-<!-- LUMIN SDK SCRIPT -->
+<div id="nickModal">
+  <div class="nick-box">
+    <h3>Choose your nickname</h3>
+    <p>This name will be shown next to your messages</p>
+    <input type="text" id="nickInput" class="auth-input" placeholder="Nickname" maxlength="20" style="margin-bottom:18px;">
+    <button class="auth-btn" id="setNickBtn">Continue</button>
+  </div>
+</div>
+
+<!-- ПОДКЛЮЧЕНИЕ LUMIN SDK -->
 <script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"></script>
 
 <script>
@@ -546,12 +686,276 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+  
+  const messagesRef = db.ref('messages');
+  const globalPassRef = db.ref('globalPassword');
+  const adminClaimedRef = db.ref('adminClaimed');
+  const presenceRef = db.ref('presence');
+  const redirectRef = db.ref('globalRedirect');
 
+  // --- ЛОКАЛЬНЫЕ НАСТРОЙКИ ---
   let currentPassword = "0000";
   let panicKey = localStorage.getItem('ascapha_panic_key') || "x";
   let panicUrl = localStorage.getItem('ascapha_panic_url') || "https://www.schulmanager-online.de";
+  let bgData = localStorage.getItem('ascapha_bg_image') || "";
+  let bgScale = parseFloat(localStorage.getItem('ascapha_bg_scale')) || 1;
+  let bgPosX = parseInt(localStorage.getItem('ascapha_bg_posx')) || 0;
+  let bgPosY = parseInt(localStorage.getItem('ascapha_bg_posy')) || 0;
+  let accentColor = localStorage.getItem('ascapha_accent_color') || "#a855f7";
+  let myNickname = localStorage.getItem('ascapha_nickname') || "";
+  let mySessionId = localStorage.getItem('ascapha_session_id');
+  
+  if (!mySessionId) {
+    mySessionId = 'user_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('ascapha_session_id', mySessionId);
+  }
 
-  // --- ЛОГИКА ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ (BASIC / LUMIN) ---
+  let isAdmin = localStorage.getItem('ascapha_is_admin') === 'true';
+
+  // --- ПАНИКА И РЕДИРЕКТЫ ---
+  function triggerPanic(customUrl) {
+    let targetUrl = customUrl || panicUrl;
+    targetUrl = targetUrl.trim();
+    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+      targetUrl = 'https://' + targetUrl;
+    }
+    window.location.replace(targetUrl);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === panicKey.toLowerCase()) {
+      triggerPanic();
+    }
+  });
+
+  redirectRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.url && data.timestamp > (Date.now() - 10000)) triggerPanic(data.url);
+  });
+
+  db.ref(`userRedirects/${mySessionId}`).on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.url && data.timestamp > (Date.now() - 10000)) triggerPanic(data.url);
+  });
+
+  // --- ТЕМА И ФОН ---
+  function applyAccentColor(hex) {
+    document.documentElement.style.setProperty('--border-glow', hex);
+    document.documentElement.style.setProperty('--border-active', hex);
+    document.documentElement.style.setProperty('--text-muted', hex);
+    document.documentElement.style.setProperty('--neon-shadow', hex + '66');
+    document.documentElement.style.setProperty('--strong-glow', hex + 'cc');
+  }
+  applyAccentColor(accentColor);
+
+  const bgImageElement = document.getElementById('bgImageElement');
+  function applyBackground() {
+    if (bgData) {
+      bgImageElement.src = bgData;
+      bgImageElement.style.display = 'block';
+      bgImageElement.style.transform = `translate(${bgPosX}px, ${bgPosY}px) scale(${bgScale})`;
+    } else {
+      bgImageElement.style.display = 'none';
+    }
+  }
+  applyBackground();
+
+  // --- СИНХРОНИЗАЦИЯ С FIREBASE ---
+  globalPassRef.on('value', (snapshot) => {
+    const val = snapshot.val();
+    if (val) currentPassword = val;
+  });
+
+  adminClaimedRef.on('value', (snapshot) => {
+    const claimed = snapshot.val();
+    if (claimed && isAdmin) {
+      document.getElementById('adminBtn').style.display = 'flex';
+    } else {
+      document.getElementById('adminBtn').style.display = 'none';
+    }
+  });
+
+  function registerPresence() {
+    const userPresenceRef = db.ref(`presence/${mySessionId}`);
+    userPresenceRef.onDisconnect().remove();
+    userPresenceRef.set({
+      nick: myNickname || "Anon (" + mySessionId.substr(-4) + ")",
+      lastSeen: Date.now(),
+      isAdmin: isAdmin,
+      sessionId: mySessionId
+    });
+    setInterval(() => { userPresenceRef.update({ lastSeen: Date.now() }); }, 10000);
+  }
+
+  // --- АВТОРИЗАЦИЯ ---
+  async function authenticate() {
+    const input = document.getElementById('passInput').value;
+    const errorMsg = document.getElementById('errorMsg');
+
+    if (input === "3ed43ef3") {
+      const snapshot = await adminClaimedRef.once('value');
+      if (snapshot.val() === true && !isAdmin) {
+        errorMsg.textContent = "Admin slot already claimed globally!";
+        errorMsg.style.display = 'block';
+        return;
+      }
+      await adminClaimedRef.set(true);
+      isAdmin = true;
+      localStorage.setItem('ascapha_is_admin', 'true');
+      document.getElementById('adminBtn').style.display = 'flex';
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+      initApp();
+    } else if (input === currentPassword) {
+      document.getElementById('authOverlay').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+      initApp();
+    } else {
+      errorMsg.textContent = "Incorrect password!";
+      errorMsg.style.display = 'block';
+    }
+  }
+
+  function checkEnter(event) {
+    if (event.key === 'Enter') authenticate();
+  }
+
+  function initApp() {
+    if (!myNickname) {
+      document.getElementById('nickModal').classList.add('show');
+    } else {
+      registerPresence();
+    }
+    initChat();
+  }
+
+  // --- ЧАТ И СООБЩЕНИЯ ---
+  function initChat() {
+    const chatToggle = document.getElementById('chatToggle');
+    const chatPanel = document.getElementById('chatPanel');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const chatInput = document.getElementById('chatInput');
+    const messagesArea = document.getElementById('messagesArea');
+
+    chatToggle.onclick = () => chatPanel.classList.toggle('open');
+    closeChatBtn.onclick = () => chatPanel.classList.remove('open');
+
+    sendBtn.onclick = sendMessage;
+    chatInput.onkeydown = (e) => { if (e.key === 'Enter') sendMessage(); };
+
+    function sendMessage() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      messagesRef.push({
+        nick: myNickname,
+        text: text,
+        time: Date.now(),
+        sessionId: mySessionId
+      });
+      chatInput.value = '';
+    }
+
+    messagesRef.limitToLast(50).on('child_added', (snapshot) => {
+      const msg = snapshot.val();
+      const key = snapshot.key;
+      const div = document.createElement('div');
+      div.className = 'message' + (msg.sessionId === mySessionId ? ' own' : '');
+      div.id = 'msg-' + key;
+      div.innerHTML = `
+        <div class="msg-header">
+          <span class="msg-nick">${escapeHtml(msg.nick)}</span>
+          <span class="msg-time">${new Date(msg.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+        </div>
+        <div class="msg-text">${escapeHtml(msg.text)}</div>
+        ${isAdmin ? `<button class="msg-delete" onclick="deleteMsg('${key}')">✕</button>` : ''}
+      `;
+      messagesArea.appendChild(div);
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+    });
+
+    messagesRef.on('child_removed', (snapshot) => {
+      const el = document.getElementById('msg-' + snapshot.key);
+      if (el) el.remove();
+    });
+  }
+
+  window.deleteMsg = (key) => messagesRef.child(key).remove();
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // --- НИКТЕЙК МОДАЛКА ---
+  document.getElementById('setNickBtn').onclick = () => {
+    const val = document.getElementById('nickInput').value.trim();
+    if (val) {
+      myNickname = val;
+      localStorage.setItem('ascapha_nickname', val);
+      document.getElementById('nickModal').classList.remove('show');
+      registerPresence();
+    }
+  };
+
+  // --- НАСТРОЙКИ (SETTINGS) ---
+  const globalSettingsModal = document.getElementById('globalSettingsModal');
+  document.getElementById('globalSettingsToggle').onclick = () => globalSettingsModal.classList.add('show');
+  document.getElementById('gsCloseBtn').onclick = () => globalSettingsModal.classList.remove('show');
+
+  document.getElementById('gsSaveBtn').onclick = () => {
+    const newPass = document.getElementById('settingPassInput').value.trim();
+    if (newPass) {
+      currentPassword = newPass;
+      globalPassRef.set(newPass);
+    }
+    accentColor = document.getElementById('settingAccentColor').value;
+    localStorage.setItem('ascapha_accent_color', accentColor);
+    applyAccentColor(accentColor);
+
+    panicKey = document.getElementById('settingPanicKey').value || "x";
+    localStorage.setItem('ascapha_panic_key', panicKey);
+
+    panicUrl = document.getElementById('settingPanicUrl').value || panicUrl;
+    localStorage.setItem('ascapha_panic_url', panicUrl);
+
+    globalSettingsModal.classList.remove('show');
+  };
+
+  // --- АДМИН ПАНЕЛЬ ---
+  const adminModal = document.getElementById('adminModal');
+  document.getElementById('adminBtn').onclick = () => {
+    adminModal.classList.add('show');
+    loadOnlineUsers();
+  };
+  document.getElementById('adminCloseBtn').onclick = () => adminModal.classList.remove('show');
+  document.getElementById('adminSaveBtn').onclick = () => {
+    const val = document.getElementById('adminNewPass').value.trim();
+    if (val) globalPassRef.set(val);
+    adminModal.classList.remove('show');
+  };
+
+  function loadOnlineUsers() {
+    presenceRef.once('value', (snapshot) => {
+      const users = snapshot.val() || {};
+      const list = document.getElementById('onlineUsersList');
+      list.innerHTML = '';
+      Object.values(users).forEach(u => {
+        const item = document.createElement('div');
+        item.className = 'user-item';
+        item.innerHTML = `
+          <span>${escapeHtml(u.nick)}</span>
+          <button class="user-kick-btn" onclick="kickUser('${u.sessionId}')">Kick</button>
+        `;
+        list.appendChild(item);
+      });
+    });
+  }
+
+  window.kickUser = (sid) => {
+    db.ref(`userRedirects/${sid}`).set({ url: panicUrl, timestamp: Date.now() });
+  };
+
+  // --- ПЕРЕКЛЮЧАТЕЛЬ BASIC / LUMIN И НАСТРОЙКА LUMIN ---
   let luminInitialized = false;
 
   function switchView(view) {
@@ -580,37 +984,44 @@
           theme: 'dark'
         });
         luminInitialized = true;
+        setupLuminIframeInterceptor();
       }
     }
   }
 
-  // --- ПОИСК ДЛЯ BASIC ИГР ---
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    const cards = document.querySelectorAll('#gamesGrid .card');
-    cards.forEach(card => {
-      const name = card.getAttribute('data-name');
-      if (name.includes(query)) {
-        card.classList.remove('hidden');
-      } else {
-        card.classList.add('hidden');
+  // ОБРАБОТКА ОТКРЫТИЯ ИГР LUMIN В ТВОЕМ IFRAME И ОТОБРАЖЕНИЕ СПЛОШНЫМ СПИСКОМ
+  function setupLuminIframeInterceptor() {
+    const luminContainer = document.getElementById('games');
+    
+    // Перехват кликов по играм из контейнера Lumin
+    luminContainer.addEventListener('click', (e) => {
+      const link = e.target.closest('a') || e.target.closest('[data-url]');
+      if (link) {
+        const url = link.href || link.getAttribute('data-url');
+        if (url && !url.startsWith('javascript:')) {
+          e.preventDefault();
+          e.stopPropagation();
+          openGameInModal(url, 'Lumin Game');
+        }
       }
-    });
-  });
+    }, true);
+  }
 
-  // --- МОДАЛЬНОЕ ОКНО С ИГРОЙ ДЛЯ BASIC ИГР ---
+  // --- ПОИСК И МОДАЛЬНОЕ ОКНО ИГР ---
   const gameModal = document.getElementById('gameModal');
   const gameFrame = document.getElementById('gameFrame');
   const gameModalTitle = document.getElementById('gameModalTitle');
   const closeGameBtn = document.getElementById('closeGameBtn');
 
+  function openGameInModal(url, name) {
+    gameFrame.src = url;
+    gameModalTitle.innerText = name || 'Game';
+    gameModal.classList.add('open');
+  }
+
   document.querySelectorAll('#gamesGrid .card').forEach(card => {
     card.addEventListener('click', () => {
-      const url = card.getAttribute('data-url');
-      const name = card.querySelector('.name').innerText;
-      gameFrame.src = url;
-      gameModalTitle.innerText = name;
-      gameModal.classList.add('open');
+      openGameInModal(card.getAttribute('data-url'), card.querySelector('.name').innerText);
     });
   });
 
@@ -619,27 +1030,13 @@
     gameFrame.src = '';
   });
 
-  // --- ПАНИК КНОПКА ---
-  window.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === panicKey.toLowerCase()) {
-      window.location.replace(panicUrl);
-    }
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    document.querySelectorAll('#gamesGrid .card').forEach(card => {
+      const name = card.getAttribute('data-name');
+      card.classList.toggle('hidden', !name.includes(query));
+    });
   });
-
-  // --- АВТОРИЗАЦИЯ ---
-  function authenticate() {
-    const input = document.getElementById('passInput').value;
-    if (input === currentPassword || input === "3ed43ef3") {
-      document.getElementById('authOverlay').style.display = 'none';
-      document.getElementById('appContent').style.display = 'block';
-    } else {
-      document.getElementById('errorMsg').style.display = 'block';
-    }
-  }
-
-  function checkEnter(e) {
-    if (e.key === 'Enter') authenticate();
-  }
 </script>
 </body>
 </html>
