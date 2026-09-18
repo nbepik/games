@@ -854,19 +854,39 @@
     renderMessages(snapshot.val() || {});
   });
 
-  // Улучшенный обработчик паники, ловящий события на уровне окна и документа (capture phase)
+  // Улучшенный обработчик паники с поддержкой iframe (обход захвата фокуса игрой)
   function handlePanic(e) {
-    if (e.key.toLowerCase() === panicKey.toLowerCase()) {
+    if (e.key && e.key.toLowerCase() === panicKey.toLowerCase()) {
       window.location.replace(panicUrl);
     }
   }
   window.addEventListener('keydown', handlePanic, { capture: true, passive: true });
   document.addEventListener('keydown', handlePanic, { capture: true, passive: true });
 
-  // Возвращаем фокус главному окну, если игра перехватывает управление
+  function hookIframes() {
+    document.querySelectorAll('iframe').forEach(frame => {
+      try {
+        const frameWindow = frame.contentWindow;
+        if (frameWindow && !frameWindow.datasetPanicHooked) {
+          frameWindow.datasetPanicHooked = true;
+          frameWindow.addEventListener('keydown', (e) => {
+            if (e.key && e.key.toLowerCase() === panicKey.toLowerCase()) {
+              window.location.replace(panicUrl);
+            }
+          }, { capture: true, passive: true });
+        }
+      } catch (err) {}
+    });
+  }
+  setInterval(hookIframes, 1000);
+
   window.addEventListener('blur', () => {
-    window.focus();
-  });
+    setTimeout(() => {
+      if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+        window.focus();
+      }
+    }, 10);
+  }, true);
 </script>
 </body>
 </html>
