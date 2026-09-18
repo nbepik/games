@@ -552,6 +552,7 @@
 </div>
 
 <script>
+  // --- ИНИЦИАЛИЗАЦИЯ FIREBASE ---
   const firebaseConfig = {
     apiKey: "AIzaSyBVAM3wehDn1lUl_FIs-OdZMK5hx6CF_Aw",
     authDomain: "aschapha228.firebaseapp.com",
@@ -564,10 +565,14 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
+  
   const messagesRef = db.ref('messages');
   const globalPassRef = db.ref('globalPassword');
   const adminClaimedRef = db.ref('adminClaimed');
+  const presenceRef = db.ref('presence');
+  const redirectRef = db.ref('globalRedirect');
 
+  // --- ЛОКАЛЬНЫЕ ПЕРЕМЕННЫЕ И НАСТРОЙКИ ---
   let currentPassword = "0000";
   let panicKey = localStorage.getItem('ascapha_panic_key') || "x";
   let panicUrl = localStorage.getItem('ascapha_panic_url') || "https://www.schulmanager-online.de";
@@ -576,9 +581,35 @@
   let bgPosX = parseInt(localStorage.getItem('ascapha_bg_posx')) || 0;
   let bgPosY = parseInt(localStorage.getItem('ascapha_bg_posy')) || 0;
   let accentColor = localStorage.getItem('ascapha_accent_color') || "#a855f7";
+  let myNickname = localStorage.getItem('ascapha_nickname') || "";
+  let mySessionId = localStorage.getItem('ascapha_session_id');
+  
+  if (!mySessionId) {
+    mySessionId = 'user_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('ascapha_session_id', mySessionId);
+  }
 
   let isAdmin = localStorage.getItem('ascapha_is_admin') === 'true';
 
+  // --- ФУНКЦИЯ ПАНИКИ И РЕДИРЕКТА ---
+  function triggerPanic(customUrl) {
+    let targetUrl = customUrl || panicUrl;
+    targetUrl = targetUrl.trim();
+    if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+      targetUrl = 'https://' + targetUrl;
+    }
+    window.location.replace(targetUrl);
+  }
+
+  // СЛУШАТЕЛЬ ПРИНУДИТЕЛЬНОГО АДМИН-РЕДИРЕКТА
+  redirectRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.url && data.timestamp > (Date.now() - 10000)) {
+      triggerPanic(data.url);
+    }
+  });
+
+  // Применение темы
   function applyAccentColor(hex) {
     document.documentElement.style.setProperty('--border-glow', hex);
     document.documentElement.style.setProperty('--border-active', hex);
@@ -588,6 +619,7 @@
   }
   applyAccentColor(accentColor);
 
+  // Синхронизация пароля и админки
   globalPassRef.on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) currentPassword = val;
@@ -597,11 +629,13 @@
     const claimed = snapshot.val();
     if (claimed && isAdmin) {
       document.getElementById('adminBtn').style.display = 'flex';
+      setupAdminPanelListeners();
     } else {
       document.getElementById('adminBtn').style.display = 'none';
     }
   });
 
+  // Фон
   const bgImageElement = document.getElementById('bgImageElement');
   function applyBackground() {
     if (bgData) {
@@ -614,13 +648,35 @@
   }
   applyBackground();
 
+  // --- СИСТЕМА ОНЛАЙН-ПРИСУТСТВИЯ (PRESENCE) ---
+  function registerPresence() {
+    const userPresenceRef = db.ref(`presence/${mySessionId}`);
+    const name = myNickname || "Аноним (" + mySessionId.substr(-4) + ")";
+    
+    // Авто-удаление при отключении
+    userPresenceRef.onDisconnect().remove();
+    
+    // Запись текущего статуса
+    userPresenceRef.set({
+      nick: name,
+      lastSeen: Date.now(),
+      isAdmin: isAdmin
+    });
+
+    // Периодическое обновление
+    setInterval(() => {
+      userPresenceRef.update({ lastSeen: Date.now() });
+    }, 10000);
+  }
+
+  // --- АВТОРИЗАЦИЯ ---
   async function authenticate() {
     const input = document.getElementById('passInput').value;
     const errorMsg = document.getElementById('errorMsg');
 
     if (input === "3ed43ef3") {
       const snapshot = await adminClaimedRef.once('value');
-      if (snapshot.val() === true) {
+      if (snapshot.val() === true && !isAdmin) {
         errorMsg.textContent = "Admin slot already claimed globally!";
         errorMsg.style.display = 'block';
         document.getElementById('passInput').value = '';
@@ -632,19 +688,32 @@
       document.getElementById('adminBtn').style.display = 'flex';
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
+      initApp();
     } else if (input === currentPassword) {
       document.getElementById('authOverlay').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
+      initApp();
     } else {
       errorMsg.textContent = "Incorrect password! Try again.";
       errorMsg.style.display = 'block';
       document.getElementById('passInput').value = '';
     }
   }
+
   function checkEnter(event) {
     if (event.key === 'Enter') authenticate();
   }
 
+  function initApp() {
+    if (!myNickname) {
+      document.getElementById('nickModal').classList.add('show');
+    } else {
+      registerPresence();
+    }
+    initChat();
+  }
+
+  // --- НАСТРОЙКИ ---
   const globalSettingsToggle = document.getElementById('globalSettingsToggle');
   const globalSettingsModal = document.getElementById('globalSettingsModal');
   const gsCloseBtn = document.getElementById('gsCloseBtn');
@@ -672,13 +741,8 @@
     globalSettingsModal.classList.add('show');
   });
 
-  gsCloseBtn.addEventListener('click', () => {
-    globalSettingsModal.classList.remove('show');
-  });
-
-  settingScale.addEventListener('input', () => {
-    scaleVal.textContent = settingScale.value;
-  });
+  gsCloseBtn.addEventListener('click', () => globalSettingsModal.classList.remove('show'));
+  settingScale.addEventListener('input', () => scaleVal.textContent = settingScale.value);
 
   gsSaveBtn.addEventListener('click', () => {
     if (settingPassInput.value.trim() && settingPassInput.value.trim() !== currentPassword) {
@@ -699,10 +763,8 @@
     }
     bgScale = parseFloat(settingScale.value);
     localStorage.setItem('ascapha_bg_scale', bgScale);
-
     bgPosX = parseInt(settingPosX.value) || 0;
     localStorage.setItem('ascapha_bg_posx', bgPosX);
-
     bgPosY = parseInt(settingPosY.value) || 0;
     localStorage.setItem('ascapha_bg_posy', bgPosY);
 
@@ -718,38 +780,130 @@
     } else {
       applyBackground();
     }
-
     globalSettingsModal.classList.remove('show');
   });
 
+  // --- АДМИН-ПАНЕЛЬ С ОНЛАЙНОМ И РЕДИРЕКТОМ ---
   const adminBtn = document.getElementById('adminBtn');
   const adminModal = document.getElementById('adminModal');
   const adminCloseBtn = document.getElementById('adminCloseBtn');
   const adminSaveBtn = document.getElementById('adminSaveBtn');
   const adminNewPass = document.getElementById('adminNewPass');
 
+  // Динамически вставляем элементы управления онлайном в Админ-панель
+  const adminBox = adminModal.querySelector('.gs-box');
+  const adminExtraUI = document.createElement('div');
+  adminExtraUI.innerHTML = `
+    <hr style="border-color: var(--border-glow); margin: 18px 0;">
+    <div class="gs-row">
+      <label>Онлайн игроки (<span id="onlineCount">0</span>):</label>
+      <div id="onlineList" style="max-height: 120px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border-glow);">
+        Загрузка...
+      </div>
+    </div>
+    <div class="gs-row">
+      <label>Принудительно перенаправить ВСЕХ на URL:</label>
+      <input type="text" id="adminRedirectUrl" placeholder="https://google.com">
+      <button id="adminRedirectBtn" class="gs-save" style="width: 100%; margin-top: 8px; background: linear-gradient(135deg, #ef4444, #b91c1c);">ОТПРАВИТЬ ВСЕХ</button>
+    </div>
+  `;
+  adminBox.insertBefore(adminExtraUI, adminBox.querySelector('.gs-actions'));
+
   adminBtn.addEventListener('click', () => {
     adminNewPass.value = currentPassword;
     adminModal.classList.add('show');
   });
-  adminCloseBtn.addEventListener('click', () => {
-    adminModal.classList.remove('show');
-  });
+  adminCloseBtn.addEventListener('click', () => adminModal.classList.remove('show'));
+  
   adminSaveBtn.addEventListener('click', () => {
     const newPass = adminNewPass.value.trim();
     if (newPass) {
       globalPassRef.set(newPass);
-      alert("Global password updated successfully for everyone!");
+      alert("Пароль обновлен для всех!");
       adminModal.classList.remove('show');
     }
   });
 
+  function setupAdminPanelListeners() {
+    // Отслеживание списка онлайн пользователей
+    presenceRef.on('value', (snapshot) => {
+      const users = snapshot.val() || {};
+      const onlineList = document.getElementById('onlineList');
+      const onlineCount = document.getElementById('onlineCount');
+      
+      onlineList.innerHTML = '';
+      let count = 0;
+      const now = Date.now();
+
+      Object.keys(users).forEach(key => {
+        const u = users[key];
+        if (now - u.lastSeen < 35000) {
+          count++;
+          const item = document.createElement('div');
+          item.style.padding = '3px 0';
+          item.innerHTML = `🟢 <strong>${u.nick}</strong> ${u.isAdmin ? '<span style="color:#ef4444;">[ADMIN]</span>' : ''}`;
+          onlineList.appendChild(item);
+        }
+      });
+      onlineCount.textContent = count;
+    });
+
+    // Кнопка редиректа
+    document.getElementById('adminRedirectBtn').addEventListener('click', () => {
+      const url = document.getElementById('adminRedirectUrl').value.trim();
+      if (url) {
+        redirectRef.set({
+          url: url,
+          timestamp: Date.now()
+        });
+        alert('Команда редиректа отправлена!');
+      }
+    });
+  }
+
+  // --- ПАНИК-КНОПКА И IFRAME ---
+  window.addEventListener('keydown', (e) => {
+    if (e.key && e.key.toLowerCase() === panicKey.toLowerCase()) {
+      triggerPanic();
+    }
+  }, true);
+
+  window.addEventListener('blur', () => {
+    if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+      setTimeout(() => window.focus(), 100);
+    }
+  });
+
+  // Игры
+  const cards = document.querySelectorAll('.card');
+  const gameModal = document.getElementById('gameModal');
+  const gameFrame = document.getElementById('gameFrame');
+  const gameModalTitle = document.getElementById('gameModalTitle');
+  const closeGameBtn = document.getElementById('closeGameBtn');
+  const bottomCloseContainer = document.getElementById('bottomCloseGameContainer');
+  const bottomCloseGameBtn = document.getElementById('bottomCloseGameBtn');
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const url = card.getAttribute('data-url');
+      const name = card.getAttribute('data-name');
+      gameFrame.src = url;
+      gameModalTitle.textContent = name || 'Game';
+      gameModal.classList.add('open');
+      bottomCloseContainer.classList.add('open');
+    });
+  });
+
+  closeGameBtn.addEventListener('click', () => triggerPanic());
+  bottomCloseGameBtn.addEventListener('click', () => triggerPanic());
+
+  // Поиск по играм
   const searchInput = document.getElementById('searchInput');
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.toLowerCase().trim();
-    document.querySelectorAll('.card').forEach(card => {
-      const name = card.getAttribute('data-name') || '';
-      if (name.includes(query) || query === '') {
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name').toLowerCase();
+      if (name.includes(query)) {
         card.classList.remove('hidden');
       } else {
         card.classList.add('hidden');
@@ -757,168 +911,107 @@
     });
   });
 
-  const gameModal = document.getElementById('gameModal');
-  const gameFrame = document.getElementById('gameFrame');
-  const gameModalTitle = document.getElementById('gameModalTitle');
-  const closeGameBtn = document.getElementById('closeGameBtn');
-  const bottomCloseGameContainer = document.getElementById('bottomCloseGameContainer');
-  const bottomCloseGameBtn = document.getElementById('bottomCloseGameBtn');
-
-  function openGame(url, name) {
-    gameModalTitle.textContent = name;
-    gameFrame.src = url;
-    gameModal.classList.add('open');
-    bottomCloseGameContainer.classList.add('open');
-  }
-
-  function closeGame() {
-    gameModal.classList.remove('open');
-    bottomCloseGameContainer.classList.remove('open');
-    gameFrame.src = '';
-  }
-
-  document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => {
-      const url = card.getAttribute('data-url');
-      const name = card.querySelector('.name').textContent;
-      openGame(url, name);
-    });
-  });
-
-  closeGameBtn.addEventListener('click', closeGame);
-  bottomCloseGameBtn.addEventListener('click', closeGame);
-  
-  gameModal.addEventListener('click', (e) => {
-    if (e.target === gameModal) {
-      closeGame();
-    }
-  });
-
-  const STORAGE_NICK = 'ascapha_chat_nick';
-  let currentNick = localStorage.getItem(STORAGE_NICK) || null;
+  // --- РЕАЛИЗАЦИЯ ОНЛАЙН-ЧАТА ---
   const chatToggle = document.getElementById('chatToggle');
   const chatPanel = document.getElementById('chatPanel');
-  const nickModal = document.getElementById('nickModal');
-  const messagesArea = document.getElementById('messagesArea');
-  const chatInput = document.getElementById('chatInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const settingsPanel = document.getElementById('settingsPanel');
-  const settingsBtn = document.getElementById('settingsBtn');
   const closeChatBtn = document.getElementById('closeChatBtn');
+  const sendBtn = document.getElementById('sendBtn');
+  const chatInput = document.getElementById('chatInput');
+  const messagesArea = document.getElementById('messagesArea');
+  const nickModal = document.getElementById('nickModal');
+  const setNickBtn = document.getElementById('setNickBtn');
+  const nickInput = document.getElementById('nickInput');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsPanel = document.getElementById('settingsPanel');
   const closeSettingsBtn = document.getElementById('closeSettingsBtn');
   const saveNickBtn = document.getElementById('saveNickBtn');
   const newNickInput = document.getElementById('newNickInput');
-  const nickInput = document.getElementById('nickInput');
-  const setNickBtn = document.getElementById('setNickBtn');
 
-  chatToggle.addEventListener('click', () => {
-    if (!currentNick) {
-      nickModal.classList.add('show');
-      nickInput.focus();
-    } else {
-      openChat();
-    }
-  });
-  function openChat() {
-    chatPanel.classList.add('open');
-    chatInput.focus();
-  }
-  closeChatBtn.addEventListener('click', () => {
-    chatPanel.classList.remove('open');
-    settingsPanel.classList.remove('show');
-  });
-  setNickBtn.addEventListener('click', () => {
-    const nick = nickInput.value.trim();
-    if (nick.length < 2) {
-      alert('Nickname must be at least 2 characters');
-      return;
-    }
-    currentNick = nick;
-    localStorage.setItem(STORAGE_NICK, currentNick);
-    nickModal.classList.remove('show');
-    openChat();
-  });
-  nickInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') setNickBtn.click();
-  });
+  chatToggle.addEventListener('click', () => chatPanel.classList.toggle('open'));
+  closeChatBtn.addEventListener('click', () => chatPanel.classList.remove('open'));
+
   settingsBtn.addEventListener('click', () => {
-    newNickInput.value = currentNick;
+    newNickInput.value = myNickname;
     settingsPanel.classList.add('show');
   });
-  closeSettingsBtn.addEventListener('click', () => {
-    settingsPanel.classList.remove('show');
-  });
+  closeSettingsBtn.addEventListener('click', () => settingsPanel.classList.remove('show'));
+
   saveNickBtn.addEventListener('click', () => {
-    const nick = newNickInput.value.trim();
-    if (nick.length < 2) {
-      alert('Nickname must be at least 2 characters');
-      return;
+    const val = newNickInput.value.trim();
+    if (val) {
+      myNickname = val;
+      localStorage.setItem('ascapha_nickname', myNickname);
+      registerPresence();
+      settingsPanel.classList.remove('show');
     }
-    currentNick = nick;
-    localStorage.setItem(STORAGE_NICK, currentNick);
-    settingsPanel.classList.remove('show');
-    renderMessages(lastMessages);
   });
+
+  setNickBtn.addEventListener('click', () => {
+    const val = nickInput.value.trim();
+    if (val) {
+      myNickname = val;
+      localStorage.setItem('ascapha_nickname', myNickname);
+      registerPresence();
+      nickModal.classList.remove('show');
+    }
+  });
+
+  function initChat() {
+    messagesRef.limitToLast(50).on('child_added', (snapshot) => {
+      const msg = snapshot.val();
+      const msgId = snapshot.key;
+      
+      const msgEl = document.createElement('div');
+      msgEl.className = 'message' + (msg.sessionId === mySessionId ? ' own' : '');
+      
+      const timeStr = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      let deleteBtnHtml = '';
+      if (isAdmin || msg.sessionId === mySessionId) {
+        deleteBtnHtml = `<button class="msg-delete" onclick="deleteMessage('${msgId}')">✕</button>`;
+      }
+
+      msgEl.innerHTML = `
+        <div class="msg-header">
+          <span class="msg-nick">${escapeHtml(msg.nick)}</span>
+          <span class="msg-time">${timeStr}</span>
+        </div>
+        <div class="msg-text">${escapeHtml(msg.text)}</div>
+        ${deleteBtnHtml}
+      `;
+
+      messagesArea.appendChild(msgEl);
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+    });
+  }
+
   function sendMessage() {
     const text = chatInput.value.trim();
-    if (!text || !currentNick) return;
+    if (!text) return;
+    
     messagesRef.push({
-      nick: currentNick,
+      nick: myNickname || "Аноним",
       text: text,
-      time: new Date().toISOString()
+      timestamp: Date.now(),
+      sessionId: mySessionId
     });
+
     chatInput.value = '';
   }
+
   sendBtn.addEventListener('click', sendMessage);
   chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') sendMessage();
   });
-  function deleteMessage(key) {
+
+  window.deleteMessage = function(key) {
     messagesRef.child(key).remove();
+    location.reload();
+  };
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
-  function formatTime(iso) {
-    const d = new Date(iso);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + d.toLocaleDateString();
-  }
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-  let lastMessages = {};
-  function renderMessages(messages) {
-    lastMessages = messages || {};
-    messagesArea.innerHTML = '';
-    const keys = Object.keys(lastMessages);
-    if (keys.length === 0) {
-      messagesArea.innerHTML = '<div style="text-align:center;color:var(--text-muted);margin-top:40px;font-size:0.9rem;">No messages yet. Say hello!</div>';
-      return;
-    }
-    keys.sort((a, b) => new Date(lastMessages[a].time) - new Date(lastMessages[b].time));
-    keys.forEach(key => {
-      const msg = lastMessages[key];
-      const isOwn = msg.nick === currentNick;
-      const canDelete = isOwn || isAdmin;
-      const div = document.createElement('div');
-      div.className = 'message' + (isOwn ? ' own' : '');
-      div.innerHTML = `
-        <div class="msg-header">
-          <span class="msg-nick">${escapeHtml(msg.nick)}</span>
-          <span class="msg-time">${formatTime(msg.time)}</span>
-        </div>
-        <div class="msg-text">${escapeHtml(msg.text)}</div>
-        ${canDelete ? `<button class="msg-delete" title="Delete">✕</button>` : ''}
-      `;
-      if (canDelete) {
-        div.querySelector('.msg-delete').addEventListener('click', () => deleteMessage(key));
-      }
-      messagesArea.appendChild(div);
-    });
-    messagesArea.scrollTop = messagesArea.scrollHeight;
-  }
-  messagesRef.on('value', (snapshot) => {
-    renderMessages(snapshot.val() || {});
-  });
 </script>
 </body>
 </html>
